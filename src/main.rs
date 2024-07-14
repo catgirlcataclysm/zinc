@@ -1,24 +1,22 @@
-use std::{io::{stdout, Result}, thread::sleep};
-
-use ratatui::{
-    backend::CrosstermBackend,
-    crossterm::{
-        event::{self, KeyCode, KeyEventKind},
-        ExecutableCommand,
-    },
-    style::Stylize,
-    widgets::Paragraph,
-    Terminal,
-};
-use term::*;
 #[path = "terminal/term.rs"] mod term;
+#[path = "terminal/zinc.rs"] mod zinc;
+use zinc::*;
+use term::*;
+
+use std::io::{stdout, Result};
+use ratatui::{backend::CrosstermBackend, Terminal}; 
+use crossterm::event::{self, KeyCode, KeyEventKind};
 
 fn main() -> Result<()> {
     set_up_terminal().expect("Failed to initialize terminal.");
+    let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
+    terminal.clear()?;
+
+    let mut state = State::new();
 
     loop {
+        State::run(&mut state, &mut terminal)?;
 
-        
 
         
         
