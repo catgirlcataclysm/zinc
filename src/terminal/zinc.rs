@@ -1,6 +1,7 @@
 use std::io::{self, Stdout};
 
-use ratatui::{backend::CrosstermBackend, layout::{Constraint, Direction, Layout}, style::{Style, Stylize}, symbols, widgets::{Block, Tabs}, Frame, Terminal};
+use crossterm::event::{self, KeyCode, KeyEventKind};
+use ratatui::{backend::CrosstermBackend, layout::{Constraint, Direction, Layout}, style::{Color, Style, Stylize}, symbols, widgets::{Block, Borders, Tabs}, Frame, Terminal};
 
 pub struct State {
     device: String,
@@ -33,25 +34,35 @@ impl State {
         let layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints(vec![
-            Constraint::Percentage(10),
-            Constraint::Percentage(90),
+            Constraint::Percentage(5),
+            Constraint::Percentage(95),
         ]
         )
         .split(frame.size());
 
+        let block = Block::bordered()
+            .border_type(ratatui::widgets::BorderType::Rounded)
+            .border_style(Style::default().fg(Color::White));
+
+
         let tabs = Tabs::new(vec!["Device", "Distro", "Filesystem", "Hostname"])
-            .block(Block::bordered())
+            .block(block)
             .style(Style::default().white())
             .highlight_style(Style::default().yellow())
-            .select(2)
-            .divider(symbols::DOT)
-            .padding("->", "<-");
+            .select(0);
 
-        frame.render_widget(tabs, layout[1])
+        frame.render_widget(tabs, layout[0])
     
     }
 
-    fn handle_events(&self,) -> io::Result<()> {
-        todo!()
+    fn handle_events(&mut self,) -> io::Result<()> {
+        if event::poll(std::time::Duration::from_millis(16))? {
+            if let event::Event::Key(key) = event::read()? {
+                if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('q') {
+                    self.exit = true;
+                }
+            }
+        }
+    Ok(())
     }
 }

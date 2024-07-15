@@ -14,20 +14,7 @@ fn main() -> Result<()> {
 
     let mut state = State::new();
 
-    loop {
-        State::run(&mut state, &mut terminal)?;
-
-
-        
-        
-        if event::poll(std::time::Duration::from_millis(16))? {
-            if let event::Event::Key(key) = event::read()? {
-                if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('q') {
-                    break;
-                }
-            }
-        }
-    }
+    State::run(&mut state, &mut terminal)?;
 
     restore_terminal().expect("Failed to restore terminal to initial state, to do so manually, type 'reset'.");
     Ok(())
