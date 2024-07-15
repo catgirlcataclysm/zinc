@@ -20,7 +20,7 @@ let logo = TextView::new(
         .child(PaddedView::lrtb(2, 2, 2, 2, logo))
         .child(LinearLayout::vertical()
             .child(PaddedView::lrtb(2, 2, 6, 2, TextView::new("Welcome to Zinc, the guided installer for Cadmium Linux!")))
-            .child(PaddedView::lrtb(0, 9, 1, 3, Button::new("Begin", choose_fs))))));
+            .child(PaddedView::lrtb(0, 9, 1, 3, Button::new("Begin", choose_fs))))).title("Welcome!"));
     zinc.run();
 }
 
