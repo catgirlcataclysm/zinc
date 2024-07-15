@@ -48,7 +48,7 @@ impl State {
         let tabs = Tabs::new(vec!["Device", "Distro", "Filesystem", "Hostname"])
             .style(Style::default().white())
             .highlight_style(Style::default().yellow())
-            .padding("|", "|")
+            .divider("|")
             .select(0);
 
         frame.render_widget(tabs, layout[0])
