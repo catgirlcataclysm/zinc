@@ -40,11 +40,6 @@ impl State {
         )
         .split(frame.size());
 
-        let block = Block::bordered()
-            .border_type(ratatui::widgets::BorderType::Rounded)
-            .border_style(Style::default().fg(Color::White));
-
-
         let tabs = Tabs::new(vec!["Device", "Distro", "Filesystem", "Hostname"])
             .style(Style::default().white())
             .highlight_style(Style::default().yellow())
