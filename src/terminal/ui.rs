@@ -1,5 +1,3 @@
-use std::process::Command;
-
 use cursive::{views::{Button, LinearLayout, PaddedView, Panel, TextView}, Cursive};
 
 pub fn run() {
