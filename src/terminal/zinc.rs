@@ -46,7 +46,6 @@ impl State {
 
 
         let tabs = Tabs::new(vec!["Device", "Distro", "Filesystem", "Hostname"])
-            .block(block)
             .style(Style::default().white())
             .highlight_style(Style::default().yellow())
             .select(0);
