@@ -5,7 +5,6 @@ use term::*;
 
 use std::io::{stdout, Result};
 use ratatui::{backend::CrosstermBackend, Terminal}; 
-use crossterm::event::{self, KeyCode, KeyEventKind};
 
 fn main() -> Result<()> {
     set_up_terminal().expect("Failed to initialize terminal.");
