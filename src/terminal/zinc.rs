@@ -1,7 +1,7 @@
 use std::io::{self, Stdout};
 
 use crossterm::event::{self, KeyCode, KeyEventKind};
-use ratatui::{backend::CrosstermBackend, layout::{Constraint, Direction, Layout}, style::{Color, Style, Stylize}, symbols, widgets::{Block, Borders, Tabs}, Frame, Terminal};
+use ratatui::{backend::CrosstermBackend, layout::{Constraint, Direction, Layout}, style::{Style, Stylize}, widgets::Tabs, Frame, Terminal};
 
 pub struct State {
     device: String,
