@@ -2,6 +2,8 @@
 
 use cursive::{view::Resizable, views::{Button, Dialog, EditView, LinearLayout, NamedView, PaddedView, Panel, RadioButton, RadioGroup, TextView}, Cursive};
 use cursive_tabs::TabPanel;
+
+#[derive(Clone)]
 pub struct Selections {
     pub distro: String,
     pub fs: String,
@@ -102,19 +104,25 @@ fn config(z: &mut Cursive) {
             distro,
             fs,
             desktop,
-            rootpasswd: *rootpasswd,
-            username: *username,
-            passwd: *passwd 
+            rootpasswd: rootpasswd.to_string(),
+            username: username.to_string(),
+            passwd: passwd.to_string() 
         };
 
         z.pop_layer();
-        z.add_layer(Dialog::new().content(LinearLayout::vertical()
-            .child(TextView::new(selection.distro))
-            .child(TextView::new(selection.fs))
-            .child(TextView::new(selection.desktop))
-            .child(TextView::new(selection.rootpasswd))
-            .child(TextView::new(selection.username))
-            .child(TextView::new(selection.passwd))));
-        // install::install(selection);
+        
+        {
+            let selection = selection.clone();
+
+            z.add_layer(Dialog::new().content(LinearLayout::vertical()
+                .child(TextView::new(selection.distro))
+                .child(TextView::new(selection.fs))
+                .child(TextView::new(selection.desktop))
+                .child(TextView::new(selection.rootpasswd))
+                .child(TextView::new(selection.username))
+                .child(TextView::new(selection.passwd))));
+        }
+        
+        install::install(selection);
     }
 }
