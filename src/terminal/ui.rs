@@ -1,6 +1,4 @@
-use std::fs::File;
-
-use cursive::{views::{Button, LinearLayout, NamedView, PaddedView, Panel, RadioButton, RadioGroup, TextArea, TextView}, Cursive};
+use cursive::{views::{Button, LinearLayout, NamedView, PaddedView, Panel, RadioButton, TextArea, TextView}, Cursive};
 use cursive_tabs::TabPanel;
 
 enum Desktop {
