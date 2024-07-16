@@ -94,18 +94,19 @@ fn config(z: &mut Cursive) {
         let distro = format!("{:?}", RadioGroup::<Distro>::with_global("distro", |distro| distro.selection().clone()));
         let fs = format!("{:?}", RadioGroup::<Filesystem>::with_global("fs", |fs| fs.selection().clone()));
         let desktop = format!("{:?}", RadioGroup::<Desktop>::with_global("desktop", |de| de.selection().clone()));
-        let username =  format!("{:?}", z.call_on_name("username", |view: &mut EditView| view.get_content()));
-        let passwd =  format!("{:?}", z.call_on_name("passwd", |view: &mut EditView| view.get_content()));
-        let rootpasswd =  format!("{:?}", z.call_on_name("rootpasswd", |view: &mut EditView| view.get_content()));
+        let username = z.call_on_name("username", |view: &mut EditView| view.get_content()).unwrap();
+        let passwd = z.call_on_name("passwd", |view: &mut EditView| view.get_content()).unwrap();
+        let rootpasswd = z.call_on_name("rootpasswd", |view: &mut EditView| view.get_content()).unwrap();
 
         let selection = Selections {
             distro,
             fs,
             desktop,
-            rootpasswd,
-            username,
-            passwd 
+            rootpasswd: *rootpasswd,
+            username: *username,
+            passwd: *passwd 
         };
+
         z.pop_layer();
         z.add_layer(Dialog::new().content(LinearLayout::vertical()
             .child(TextView::new(selection.distro))
