@@ -1,4 +1,4 @@
-use cursive::{views::{Button, LinearLayout, NamedView, PaddedView, Panel, RadioButton, TextArea, TextView}, Cursive};
+use cursive::{views::{Button, EditView, LinearLayout, NamedView, PaddedView, Panel, RadioButton, TextView}, Cursive};
 use cursive_tabs::TabPanel;
 
 enum Desktop {
@@ -18,7 +18,8 @@ enum Distro {
     ArchLinux,
     Debian,
     Void,
-    VoidMusl
+    VoidMusl,
+    Gentoo
 }
 
 pub fn run() {
@@ -39,18 +40,19 @@ let logo = TextView::new(
         .child(PaddedView::lrtb(2, 2, 2, 2, logo))
         .child(LinearLayout::vertical()
             .child(PaddedView::lrtb(2, 2, 6, 2, TextView::new("Welcome to Zinc, the guided installer for Cadmium Linux!")))
-            .child(PaddedView::lrtb(0, 9, 1, 3, Button::new("Begin", installer))))).title("Welcome!"));
+            .child(PaddedView::lrtb(0, 9, 1, 3, Button::new("Begin", config))))).title("Welcome!"));
     zinc.run();
 }
 
-fn installer(z: &mut Cursive) {
+fn config(z: &mut Cursive) {
 
     let tabs = TabPanel::new()
         .with_tab(NamedView::new("Distro", PaddedView::lrtb(2, 2, 2, 2, LinearLayout::vertical()
             .child(RadioButton::global("distro", Distro::ArchLinux, "Arch Linux"))
             .child(RadioButton::global("distro", Distro::Debian, "Debian"))
             .child(RadioButton::global("distro", Distro::Void, "Void Linux"))
-            .child(RadioButton::global("distro", Distro::VoidMusl, "Void Musl")))))
+            .child(RadioButton::global("distro", Distro::VoidMusl, "Void Musl"))
+            .child(RadioButton::global("distro", Distro::Gentoo, "Gentoo")))))
         .with_tab(NamedView::new("Filesystem", PaddedView::lrtb(2, 2, 2, 2, LinearLayout::vertical()
             .child(RadioButton::global("fs", Filesystem::F2FS, "F2FS"))
             .child(RadioButton::global("fs", Filesystem::Ext4, "Ext4"))
@@ -62,10 +64,16 @@ fn installer(z: &mut Cursive) {
             .child(RadioButton::global("desktop", Desktop::XFCE, "XFCE")))))
         .with_tab(NamedView::new("Accounts", PaddedView::lrtb(2, 2, 2, 2, LinearLayout::vertical()
             .child(TextView::new("Enter your Username:"))
-            .child(TextArea::new())
+            .child(EditView::new())
             .child(TextView::new("Enter your Password:"))
-            .child(TextArea::new()))));
+            .child(EditView::new())
+            .child(PaddedView::lrtb(10, 0, 0, 0, Button::new("Finish", install))))));
+            
 
     z.pop_layer();
     z.add_layer(tabs);
+}
+
+fn install(z: &mut Cursive) {
+
 }
