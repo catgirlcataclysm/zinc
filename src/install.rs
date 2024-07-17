@@ -1,6 +1,11 @@
 use crate::ui::{Selections, Distro, Filesystem};
 
-pub fn match_fs(sels: Selections) {
+pub fn cgpt_tomfoolery(sels: Selections) {
+    //cgpt shit
+    mkfs(sels);
+}
+
+fn mkfs(sels: Selections) {
     match sels.fs {
         Filesystem::F2FS => {
             // mkfs.f2fs

@@ -109,5 +109,5 @@ fn finish(z: &mut Cursive) {
 
     z.pop_layer();
 
-    install::match_fs(selection);
+    install::cgpt_tomfoolery(selection);
 }
