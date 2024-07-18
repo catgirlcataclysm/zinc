@@ -1,7 +1,7 @@
 use crate::ui::{Selections, Distro, Filesystem};
 
 pub fn cgpt_tomfoolery(sels: Selections) {
-    //cgpt shit
+    
     mkfs(sels);
 }
 
