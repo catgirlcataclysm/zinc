@@ -64,14 +64,16 @@ fn find_devices(z: &mut Cursive) {
     let dev = read_dir("/dev").expect("Failed to get list of storage devices.");
     for path in dev {
         if let Ok(path) = path {
-            if path.path().to_string_lossy().contains("/dev/mmcblk") {
-                if path.path().to_string_lossy().contains("boot0") {
-                    let device = path.path().to_string_lossy().replace("boot0", "");
-                    config(z, device);
-                } else {
-                    let device = path.path().to_string_lossy().into_owned();
-                    config(z, device);
-                }
+            if !path.path().to_string_lossy().contains("/dev/mmcblk") {
+                continue;
+            }
+
+            if path.path().to_string_lossy().contains("boot0") {
+                let device = path.path().to_string_lossy().replace("boot0", "");
+                config(z, device);
+            } else {
+                let device = path.path().to_string_lossy().into_owned();
+                config(z, device);
             }
         }
     }
