@@ -144,5 +144,5 @@ fn finish(z: &mut Cursive, emmc: String, board: Board, baseboard: Baseboard) {
 
     z.pop_layer();
 
-   install::cgpt_tomfoolery(selection);
+   install::begin_install(selection);
 }

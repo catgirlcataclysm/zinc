@@ -1,6 +1,5 @@
 use crate::{hardware::{Board, Baseboard}, zinc::{Distro, Filesystem, Selections}};
-
-pub fn cgpt_tomfoolery(sels: Selections) {
+pub fn begin_install(sels: Selections) {
     match sels.baseboard {
         Baseboard::Gru => {
             
@@ -23,7 +22,11 @@ pub fn cgpt_tomfoolery(sels: Selections) {
 
     }
         
-    mkfs(sels);
+    cgpt_tomfoolery(sels);
+}
+
+fn cgpt_tomfoolery(sels: Selections) {
+
 }
 
 fn mkfs(sels: Selections) {
