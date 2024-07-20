@@ -1,3 +1,7 @@
+use std::{fs::{self, read_dir}, path::PathBuf};
+
+use crate::BOARDS;
+
 #[derive(Clone, Copy)]
 pub enum Baseboard {
     Gru,
@@ -6,6 +10,37 @@ pub enum Baseboard {
     Trogdor,
     Veyron,
     None
+}
+
+impl From<&&str> for Baseboard {
+    fn from(value: &&str) -> Self {
+        match value {
+            &"gru" => Self::Gru,
+            &"kukui" => Self::Kukui,
+            &"oak" => Self::Oak,
+            &"trogdor" => Self::Trogdor,
+            &"veyron" => Self::Veyron,
+            _ => Self::None
+        }
+    }
+}
+
+impl From<Board> for Baseboard {
+    fn from(value: Board) -> Self {
+        match value {
+            Board::Bob => Baseboard::Gru,
+            Board::Coachz => Baseboard::Trogdor,
+            Board::Hana => Baseboard::Oak,
+            Board::Homestar => Baseboard::Trogdor,
+            Board::Kevin => Baseboard::Gru,
+            Board::Kodama => Baseboard::Kukui,
+            Board::Krane => Baseboard::Kukui,
+            Board::Lazor => Baseboard::Trogdor,
+            Board::Minnie => Baseboard::Veyron,
+            Board::Speedy => Baseboard::Veyron,
+            Board::None => Baseboard::None
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -23,16 +58,11 @@ pub enum Board {
     None
 }
 
-impl From<&&str> for Baseboard {
-    fn from(value: &&str) -> Self {
-        match value {
-            &"gru" => Self::Gru,
-            &"kukui" => Self::Kukui,
-            &"oak" => Self::Oak,
-            &"trogdor" => Self::Trogdor,
-            &"veyron" => Self::Veyron,
-            _ => Self::None
-        }
+impl Board {
+    pub fn get() -> Self {
+        let hardware_raw = fs::read_to_string("/sys/firmware/devicetree/base/compatible").expect("Failed to get board info.");
+
+        BOARDS.iter().find(|b| hardware_raw.contains(*b)).expect("Your board isnt supported. (How did you boot this?)").into()
     }
 }
 
@@ -52,4 +82,19 @@ impl From<&&str> for Board {
             _ => Self::None
         }
     }
+}
+
+pub fn get_emmc() -> Option<String> {
+    let dev = read_dir("/dev").expect("Failed to list /dev.");
+    for path in dev {
+        if let Ok(path) = path {
+            if path.path().to_string_lossy().to_string() != "/dev/mmcblk0"
+            || path.path().to_string_lossy().to_string() != "/dev/mmcblk1" {
+                continue;
+            }
+
+            return Some(path.path().to_string_lossy().to_string());
+        }
+    }
+    None
 }
