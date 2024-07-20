@@ -1,7 +1,30 @@
-use crate::ui::{Selections, Distro, Filesystem};
+#[ path = "hardware.rs"] mod hardware;
 
+use crate::zinc::{Selections, Distro, Filesystem};
+use hardware::{Board, Baseboard};
 pub fn cgpt_tomfoolery(sels: Selections) {
-    
+    match sels.baseboard {
+        Baseboard::Gru => {
+            
+        }
+        Baseboard::Kukui => {
+
+        }
+        Baseboard::Oak => {
+
+        }
+        Baseboard::Trogdor => {
+
+        }
+        Baseboard::Veyron => {
+
+        }
+        Base => {
+            eprintln!("ya fucked up somehow this should be an unreachable error, ask for support on github or discord lol");
+        }
+
+    }
+        
     mkfs(sels);
 }
 

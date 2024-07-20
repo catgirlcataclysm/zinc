@@ -1,11 +1,18 @@
-#[ path = "install.rs"] mod install;
+#[ path = "hardware.rs" ] mod hardware;
 
-use std::{fs::{read_dir, DirEntry, ReadDir}, io::Error, mem};
-
+use std::fs::{self, read_dir};
 use cursive::{view::{Nameable, Resizable}, views::{Button, EditView, LinearLayout, NamedView, PaddedView, Panel, RadioButton, RadioGroup, TextView}, Cursive};
 use cursive_tabs::TabPanel;
+use hardware::{Baseboard, Board};
+
+use crate::{BASEBOARDS, BOARDS};
+
+
+
 pub struct Selections {
-    pub device: String,
+    pub baseboard: Baseboard,
+    pub board: Board,
+    pub emmc: String,
     pub distro: Distro,
     pub fs: Filesystem,
     pub desktop: Desktop,
@@ -56,11 +63,17 @@ let logo = TextView::new(
         .child(PaddedView::lrtb(2, 2, 2, 2, logo))
         .child(LinearLayout::vertical()
             .child(PaddedView::lrtb(2, 2, 6, 2, TextView::new("Welcome to Zinc, the guided installer for Cadmium Linux!")))
-            .child(PaddedView::lrtb(0, 9, 1, 3, Button::new("Begin", find_devices))))).title("Welcome!"));
+            .child(PaddedView::lrtb(0, 9, 1, 3, Button::new("Begin", get_hardware))))).title("Welcome!"));
     zinc.run();
 }
 
-fn find_devices(z: &mut Cursive) {
+fn get_hardware(z: &mut Cursive) {
+
+    let hardware_raw = fs::read_to_string("/sys/firmware/devicetree/base/compatible").expect("Failed to get board info.");
+    let board: Board = BOARDS.iter().find(|b| hardware_raw.contains(*b)).expect("Your board isnt supported.").into();
+
+    let baseboard: Baseboard = BASEBOARDS.iter().find(|bb| hardware_raw.contains(*bb)).expect("Your baseboard isnt supported.").into();
+
     let dev = read_dir("/dev").expect("Failed to get list of storage devices.");
     for path in dev {
         if let Ok(path) = path {
@@ -69,18 +82,18 @@ fn find_devices(z: &mut Cursive) {
             }
 
             if path.path().to_string_lossy().contains("boot0") {
-                let device = path.path().to_string_lossy().replace("boot0", "");
-                config(z, device);
+                let emmc = path.path().to_string_lossy().replace("boot0", "");
+                config(z, emmc, board.clone(), baseboard.clone());
             } else {
-                let device = path.path().to_string_lossy().into_owned();
-                config(z, device);
+                let emmc = path.path().to_string_lossy().into_owned();
+                config(z, emmc, board.clone(), baseboard.clone());
             }
         }
     }
 }
 
 
-fn config(z: &mut Cursive, device: String) {
+fn config(z: &mut Cursive, emmc: String, board: Board, baseboard: Baseboard) {
 
     let tabs = TabPanel::new()
         .with_tab(NamedView::new("Distro", PaddedView::lrtb(2, 2, 2, 2, LinearLayout::vertical()
@@ -105,14 +118,14 @@ fn config(z: &mut Cursive, device: String) {
             .child(EditView::new().with_name("username").fixed_height(1))
             .child(TextView::new("Enter your Password:"))
             .child(EditView::new().with_name("passwd").fixed_height(1))
-            .child(PaddedView::lrtb(10, 0, 0, 0, Button::new("Finish", move |z| finish(z, device.clone())))))));
+            .child(PaddedView::lrtb(10, 0, 0, 0, Button::new("Finish", move |z| finish(z, emmc.clone(), board.clone(), baseboard.clone())))))));
             
 
     z.pop_layer();
     z.add_layer(tabs);
 }
 
-fn finish(z: &mut Cursive, device: String) {
+fn finish(z: &mut Cursive, emmc: String, board: Board, baseboard: Baseboard) {
     // TODO: handle user not inputting username and password
     let distro = *RadioGroup::<Distro>::with_global("distro", |distro| distro.selection().clone());
     let fs = *RadioGroup::<Filesystem>::with_global("fs", |fs| fs.selection().clone());
@@ -122,7 +135,9 @@ fn finish(z: &mut Cursive, device: String) {
     let rootpasswd = z.call_on_name("rootpasswd", |view: &mut EditView| view.get_content()).unwrap().to_string();
 
     let selection = Selections {
-        device,
+        baseboard,
+        board,
+        emmc,
         distro,
         fs,
         desktop,
@@ -133,5 +148,5 @@ fn finish(z: &mut Cursive, device: String) {
 
     z.pop_layer();
 
-    install::cgpt_tomfoolery(selection);
+   install::cgpt_tomfoolery(selection);
 }
