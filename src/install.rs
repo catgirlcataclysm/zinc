@@ -77,17 +77,85 @@ fn cgpt_tomfoolery(offset: u32, sels: Selections) {
 }
 
 fn mkfs(sels: Selections) {
+    let rootpart = "/dev/disk/by-partlabel/Root";
     match sels.fs {
         Filesystem::F2FS => {
-            // mkfs.f2fs
+            Command::new("mkfs.f2fs")
+                .args(["-f", rootpart])
+                .spawn()
+                .expect(format!("Failed to create F2FS filesystem on {}", rootpart).as_str());
+
+            Command::new("mount")
+                .args(["-o", "compress_algorithm=zstd:6,compress_chksum,atgc,gc_merge,lazytime", rootpart, "/mnt"])
+                .spawn()
+                .expect("Failed to mount F2FS filesystem to /mnt");
+            
             match_distro(sels);
         }
         Filesystem::Ext4 => {
-            // mkfs.ext4
+            Command::new("mkfs.ext4")
+                .args(["-F", rootpart])
+                .spawn()
+                .expect(format!("Failed to create Ext4 Filesystem on {}", rootpart).as_str());
+
+            Command::new("mount")
+                .args([rootpart, "/mnt"])
+                .spawn()
+                .expect("Failed to mount Ext4 filesystem to /mnt");
+            
             match_distro(sels);
         }
         Filesystem::Btrfs => {
-            //mkfs.btrfs
+            Command::new("mkfs.btrfs")
+                .args(["-f", rootpart])
+                .spawn()
+                .expect(format!("Failed to create btrfs filesystem on {}", rootpart).as_str());
+            
+            Command::new("mount")
+                .args([rootpart, "/mnt"])
+                .spawn()
+                .expect("Failed to mount Btrfs filesystem to /mnt.");
+            
+            Command::new("btrfs")
+                .args(["subvolume", "create", "/mnt/.system"])
+                .spawn()
+                .expect("Failed to create system subvolume.");
+
+            Command::new("btrfs")
+                .args(["subvolume", "create", "/mnt/.system/root"])
+                .spawn()
+                .expect("Failed to create root subvolume.");
+            
+            Command::new("btrfs")
+                .args(["subvolume", "create", "/mnt/.system/home"])
+                .spawn()
+                .expect("Failed to create home subvolume.");
+            
+            Command::new("btrfs")
+                .args(["subvolume", "create", "/mnt/.snapshots"])
+                .spawn()
+                .expect("Failed to create snapshots subvolume.");
+            
+            Command::new("umount")
+                .arg("/mnt")
+                .spawn()
+                .expect("Failed to unmount btrfs filesystem.");
+            
+            Command::new("mount")
+                .args(["-o", "compress=zstd:6,subvol=.system/root", rootpart, "/mnt"])
+                .spawn()
+                .expect("Failed to mount root subvolume to /mnt");
+            
+            Command::new("mount")
+                .args(["--mkdir", "-o", "compress=zstd:6,subvol=.system/home", rootpart, "/mnt/home"])
+                .spawn()
+                .expect("Failed to mount home subvolume to /mnt/home");
+            
+            Command::new("mount")
+                .args(["--mkdir", "-o", "compress=zstd:6,subvol=.snapshots", rootpart, "/mnt/.snapshots"])
+                .spawn()
+                .expect("Failed to mount snapshots subvolume to /mnt/.snapshots");
+            
             match_distro(sels);
         }
     }    
