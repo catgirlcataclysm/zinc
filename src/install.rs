@@ -1,7 +1,5 @@
-#[ path = "hardware.rs"] mod hardware;
+use crate::{hardware::{Board, Baseboard}, zinc::{Distro, Filesystem, Selections}};
 
-use crate::zinc::{Selections, Distro, Filesystem};
-use hardware::{Board, Baseboard};
 pub fn cgpt_tomfoolery(sels: Selections) {
     match sels.baseboard {
         Baseboard::Gru => {
@@ -19,7 +17,7 @@ pub fn cgpt_tomfoolery(sels: Selections) {
         Baseboard::Veyron => {
 
         }
-        Base => {
+        Baseboard::None => {
             eprintln!("ya fucked up somehow this should be an unreachable error, ask for support on github or discord lol");
         }
 

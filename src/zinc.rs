@@ -1,12 +1,7 @@
-#[ path = "install.rs"] mod install;
-#[ path = "hardware.rs" ] mod hardware;
-
 use std::fs::{self, read_dir};
 use cursive::{view::{Nameable, Resizable}, views::{Button, EditView, LinearLayout, NamedView, PaddedView, Panel, RadioButton, RadioGroup, TextView}, Cursive};
 use cursive_tabs::TabPanel;
-use hardware::{Baseboard, Board};
-
-use crate::{BASEBOARDS, BOARDS};
+use crate::{hardware::{Baseboard, Board}, install, BASEBOARDS, BOARDS};
 
 
 
