@@ -41,11 +41,11 @@ fn cgpt_tomfoolery(offset: u32, sels: Selections) {
     Command::new("dd").args(["if=/dev/zero", format!("of={}", sels.emmc).as_str(), "bs=512k", "count=128", format!("seek={}", offset).as_str()])
         .spawn()
         .expect("Failed to zero beginning of the drive.");
-    
+
     Command::new("parted").args(["--script", sels.emmc.as_str(), "mklabel", "gpt"])
         .spawn()
         .expect("Failed to create GPT partition table.");
-    
+    //fails and idk why
     Command::new("cgpt")
         .args(["create", sels.emmc.as_str()])
         .spawn()
