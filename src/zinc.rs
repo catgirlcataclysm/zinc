@@ -1,3 +1,4 @@
+#[ path = "install.rs"] mod install;
 #[ path = "hardware.rs" ] mod hardware;
 
 use std::fs::{self, read_dir};
