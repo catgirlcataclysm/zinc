@@ -82,24 +82,22 @@ fn get_hardware(z: &mut Cursive) {
         Board::None => Baseboard::None
     };
 
-    //let dev = read_dir("/dev").expect("Failed to get list of storage devices.");
-    //for path in dev {
-    //    if let Ok(path) = path {
-    //        if !path.path().to_string_lossy().contains("/dev/mmcblk") {
-    //            continue;
-    //        }
-    //        //can contain boot1, rpmb, and any partition number(/dev/mmcblkp*) im stupid
-    //        if path.path().to_string_lossy().contains("boot0") {
-    //            let emmc = path.path().to_string_lossy().replace("boot0", "");
-    //            config(z, emmc, board.clone(), baseboard.clone());
-    //        } else {
-    //            let emmc = path.path().to_string_lossy().into_owned();
-    //            config(z, emmc, board.clone(), baseboard.clone());
-    //        }
-    //    }
-    //}
-    let emmc = "/dev/mmcblk0".to_string();
-    config(z, emmc, board.clone(), baseboard.clone());
+    let dev = read_dir("/dev").expect("Failed to get list of storage devices.");
+    for path in dev {
+        if let Ok(path) = path {
+            if !path.path().to_string_lossy().contains("/dev/mmcblk") {
+                continue;
+            }
+            //can contain boot1, rpmb, and any partition number(/dev/mmcblkp*) im stupid
+            if path.path().to_string_lossy().contains("boot0") {
+                let emmc = path.path().to_string_lossy().replace("boot0", "");
+                config(z, emmc, board.clone(), baseboard.clone());
+            } else {
+                let emmc = path.path().to_string_lossy().into_owned();
+                config(z, emmc, board.clone(), baseboard.clone());
+            }
+        }
+    }
 }
 
 
