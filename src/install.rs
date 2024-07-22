@@ -1,4 +1,6 @@
-use std::process::Command;
+use std::{fmt::format, fs::create_dir_all, process::Command};
+
+use fs_extra::dir::{self, CopyOptions};
 
 use crate::{hardware::Baseboard, zinc::{Distro, Filesystem, Selections}};
 pub fn begin_install(sels: Selections) {
@@ -182,11 +184,17 @@ fn match_distro(sels: Selections) {
 }
 
 fn install_archlinux(sels: Selections) {
-    
+
 }
 
 fn install_debian(sels: Selections) {
+    #[cfg(target_pointer_width = "64")]
+    Command::new("debootstrap").args(["--arch=arm64", "bookworm", "/mnt", "https://deb.debian.org/debian/"]).spawn().expect("Failed to run debootstrap.");
+    #[cfg(target_pointer_width = "32")]
+    Command::new("debootstrap").args(["--arch=armhf", "bookworm", "/mnt", "https://deb.debian.org/debian/"]).spawn().expect("Failed to run debootstrap.");
 
+    Command::new("chroot").args(["/mnt", "apt", "update"]).spawn().expect("Failed to run apt update inside chroot.");
+    finalise_install(sels);
 }
 
 fn install_void(sels: Selections) {
@@ -199,4 +207,14 @@ fn install_voidmusl(sels: Selections) {
 
 fn install_gentoo(sels: Selections) {
 
+}
+
+fn finalise_install(sels: Selections) {
+    let options = CopyOptions::new();
+    dir::copy("/CdFiles", "/mnt/CdFiles", &options).expect("Failed to recursively copy /CdFiles to chroot");
+    create_dir_all("/mnt/lib/firmware").expect("Failed to create /mnt/lib/firmware");
+    dir::copy("/lib/firmware", "/mnt/lib/firmware", &options).expect("Failed to recursively copy /lib/firmware to /mnt/lib/firmware.");
+    create_dir_all("/mnt/lib/modules").expect("Failed to create /mnt/lib/modules.");
+    dir::copy(format!("/lib/modules/{}", String::from_utf8(Command::new("uname").arg("-r").output().expect("Failed to run 'uname -r'.").stdout).unwrap()), format!("/mnt/lib/modules/{}", String::from_utf8(Command::new("uname").arg("-r").output().expect("Failed to run 'uname -r'.").stdout).unwrap()), &options).expect("Failed to recursively copy kernel modules to /mnt/lib/modules");
+    
 }
