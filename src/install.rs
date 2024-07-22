@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use crate::{hardware::{Board, Baseboard}, zinc::{Distro, Filesystem, Selections}};
+use crate::{hardware::Baseboard, zinc::{Distro, Filesystem, Selections}};
 pub fn begin_install(sels: Selections) {
 
     Command::new("apk")
@@ -182,7 +182,7 @@ fn match_distro(sels: Selections) {
 }
 
 fn install_archlinux(sels: Selections) {
-
+    
 }
 
 fn install_debian(sels: Selections) {

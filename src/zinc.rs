@@ -1,7 +1,6 @@
-use std::fs::{self, read_dir};
 use cursive::{view::{Nameable, Resizable}, views::{Button, EditView, LinearLayout, NamedView, PaddedView, Panel, RadioButton, RadioGroup, TextView}, Cursive};
 use cursive_tabs::TabPanel;
-use crate::{hardware::{self, Baseboard, Board}, install, BASEBOARDS, BOARDS};
+use crate::{hardware::{self, Baseboard, Board}, install};
 
 
 
@@ -98,7 +97,7 @@ fn config(z: &mut Cursive) {
 
 fn finish(z: &mut Cursive) {
     let board = Board::get();
-    let emmc = hardware::get_emmc().expect("Where the duck is your eMMC?");
+    let emmc = hardware::get_emmc().expect("Where the fork is your eMMC?");
 
     // TODO: handle user not inputting username and password
     let distro = *RadioGroup::<Distro>::with_global("distro", |distro| distro.selection().clone());

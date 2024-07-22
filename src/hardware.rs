@@ -1,4 +1,4 @@
-use std::{fs::{self, read_dir}, path::PathBuf};
+use std::fs::{self, read_dir};
 
 use crate::BOARDS;
 
