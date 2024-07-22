@@ -88,16 +88,16 @@ impl From<&&str> for Board {
         }
     }
 }
-
+//this whole function is broken
 pub fn get_emmc() -> Option<String> {
-    //let dev = read_dir("/dev").expect("Failed to list /dev.");
-    //for path in dev.flatten() {
-      //  if path.path().to_string_lossy() != "/dev/mmcblk0"
-       //     || path.path().to_string_lossy() != "/dev/mmcblk1"
-       // {
-         //   continue;
-       // }
+    let dev = read_dir("/dev").expect("Failed to list /dev.");
+    for path in dev.flatten() {
+       if path.path().to_string_lossy() != "/dev/mmcblk0"
+            || path.path().to_string_lossy() != "/dev/mmcblk1"
+        {
+           continue;
+        }
         return Some("/dev/mmcblk0".to_string());
-    //}
-    //None
+    }
+    None
 }

@@ -7,23 +7,23 @@ use crate::{
     zinc::{Distro, Filesystem, Selections},
 };
 pub fn begin_install(sels: Selections) {
-    //Command::new("apk")
-    //    .args([
-    //        "add",
-    //        "u-boot-tools",
-    //        "vboot-utils",
-    //        "btrfs-progs",
-    //        "f2fs-tools",
-    //        "git",
-    //        "networkmanager",
-    //        "sudo",
-    //        "vim",
-    //        "cgpt",
-    //        "parted",
-    //        "wget",
-    //    ])
-    //    .spawn()
-    //    .expect("Failed to install necessary installation dependencies.");
+    Command::new("apk")
+        .args([
+            "add",
+            "u-boot-tools",
+            "vboot-utils",
+            "btrfs-progs",
+            "f2fs-tools",
+            "git",
+            "networkmanager",
+            "sudo",
+            "vim",
+            "cgpt",
+            "parted",
+            "wget",
+        ])
+        .spawn()
+        .expect("Failed to install necessary installation dependencies.");
 
     match sels.baseboard {
         Baseboard::Gru => {
@@ -122,6 +122,8 @@ fn cgpt_tomfoolery(offset: u32, sels: Selections) {
         .spawn()
         .expect("Failed to add second partition to eMMC.");
 
+
+// this variable is fucking broken
     let remaining_size: u64 = String::from_utf8(
         Command::new("cgpt")
             .args([
