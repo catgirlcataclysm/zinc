@@ -140,7 +140,7 @@ fn cgpt_tomfoolery(offset: u32, sels: Selections) {
     )
     .unwrap()
     .parse()
-    .unwrap();
+    .expect("Failed to parse string into u64.");
 
     Command::new("cgpt")
         .args([
