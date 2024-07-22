@@ -98,7 +98,7 @@ pub fn get_emmc() -> Option<String> {
         {
             continue;
         }
-        return Some(path.path().to_string_lossy().to_string());
+        return Some("/dev/mmcblk0".to_string());
     }
     None
 }
