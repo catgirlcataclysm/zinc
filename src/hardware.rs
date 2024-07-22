@@ -88,7 +88,7 @@ pub fn get_emmc() -> Option<String> {
     let dev = read_dir("/dev").expect("Failed to list /dev.");
     for path in dev {
         if let Ok(path) = path {
-            println!("{}", path.path().to_string_lossy());
+            println!("{}", path.path().to_string_lossy().to_string());
             if path.path().to_string_lossy().to_string() != "/dev/mmcblk0"
             || path.path().to_string_lossy().to_string() != "/dev/mmcblk1" {
                 continue;
