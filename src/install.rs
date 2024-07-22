@@ -122,8 +122,8 @@ fn cgpt_tomfoolery(offset: u32, sels: Selections) {
         .spawn()
         .expect("Failed to add second partition to eMMC.");
 
-
-// this variable is fucking broken
+    
+//this whole thing is fucking broken i need to fix it eventually
     let remaining_size: u64 = String::from_utf8(
         Command::new("cgpt")
             .args([
@@ -141,6 +141,7 @@ fn cgpt_tomfoolery(offset: u32, sels: Selections) {
             .stdout,
     )
     .unwrap()
+    .trim()
     .parse()
     .expect("Failed to parse string into u64.");
 
