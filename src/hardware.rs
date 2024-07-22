@@ -92,12 +92,12 @@ impl From<&&str> for Board {
 pub fn get_emmc() -> Option<String> {
     let dev = read_dir("/dev").expect("Failed to list /dev.");
     for path in dev.flatten() {
-       if path.path().to_string_lossy() != "/dev/mmcblk0"
-            || path.path().to_string_lossy() != "/dev/mmcblk1"
+       if path.path().to_string_lossy().trim() != "/dev/mmcblk0"
+            || path.path().to_string_lossy().trim() != "/dev/mmcblk1"
         {
            continue;
         }
-        return Some("/dev/mmcblk0".to_string());
+        return Some(path.path().to_string_lossy().trim().to_string());
     }
     None
 }
