@@ -52,7 +52,7 @@ pub fn begin_install(sels: Selections) {
     }
 }
 
-fn cgpt_tomfoolery(offset: u32, sels: Selections) {
+fn cgpt_tomfoolery(offset: usize, sels: Selections) {
     Command::new("dd")
         .args([
             "if=/dev/zero",
@@ -122,28 +122,32 @@ fn cgpt_tomfoolery(offset: u32, sels: Selections) {
         .spawn()
         .expect("Failed to add second partition to eMMC.");
 
-    
-//this whole thing is fucking broken i need to fix it eventually
-    let remaining_size: u64 = String::from_utf8(
-        Command::new("cgpt")
-            .args([
-                "show",
-                sels.emmc.as_str(),
-                "|",
-                "grep",
-                "'Sec GPT table'",
-                "|",
-                "awk",
-                "'{print $1}'",
-            ])
-            .output()
-            .expect("Failed to query remaining space to partition")
-            .stdout,
-    )
-    .unwrap()
-    .trim()
-    .parse()
-    .expect("Failed to parse string into u64.");
+    let output = Command::new("cgpt")
+        .args([
+            "show",
+            sels.emmc.as_str(),
+            "|",
+            "grep",
+            "'Sec GPT table'",
+            "|",
+            "awk",
+            "'{print $1}'",
+        ])
+        .output()
+        .expect("Failed to query remaining space to partition");
+
+    let stdout = String::from_utf8(output.stdout).expect("Output has non UTF-8 characters!");
+
+    let mut stdout_split = stdout.split_terminator("\n");
+
+    let remaining_size: usize = stdout_split
+        .find(|o| o.contains("Sec GPT table"))
+        .expect("can't find 'Sec GPT table' in cgpt output")
+        .split_whitespace()
+        .nth(1)
+        .expect("can't find remaining size")
+        .parse()
+        .expect("remaining size is not an integer");
 
     Command::new("cgpt")
         .args([
@@ -155,7 +159,7 @@ fn cgpt_tomfoolery(offset: u32, sels: Selections) {
             "-b",
             (139264 + offset).to_string().as_str(),
             "-s",
-            (remaining_size - (139264 + offset as u64))
+            (remaining_size - (139264 + offset))
                 .to_string()
                 .as_str(),
             "-l",
