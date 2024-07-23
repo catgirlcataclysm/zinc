@@ -126,12 +126,6 @@ fn cgpt_tomfoolery(offset: usize, sels: Selections) {
         .args([
             "show",
             sels.emmc.as_str(),
-            "|",
-            "grep",
-            "'Sec GPT table'",
-            "|",
-            "awk",
-            "'{print $1}'",
         ])
         .output()
         .expect("Failed to query remaining space to partition");
