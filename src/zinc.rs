@@ -1,6 +1,6 @@
 use crate::{
-    hardware::{self, Baseboard, Board},
-    install,
+    hardware::{self, Board},
+    install::{Desktop, Distro, Filesystem, Install},
 };
 use cursive::{
     view::{Nameable, Resizable},
@@ -11,42 +11,6 @@ use cursive::{
     Cursive,
 };
 use cursive_tabs::TabPanel;
-
-pub struct Selections {
-    pub baseboard: Baseboard,
-    pub board: Board,
-    pub emmc: String,
-    pub distro: Distro,
-    pub fs: Filesystem,
-    pub desktop: Desktop,
-    pub rootpasswd: String,
-    pub username: String,
-    pub passwd: String,
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum Desktop {
-    KDE,
-    GNOME,
-    Sway,
-    XFCE,
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum Filesystem {
-    F2FS,
-    Ext4,
-    Btrfs,
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum Distro {
-    ArchLinux,
-    Debian,
-    Void,
-    VoidMusl,
-    Gentoo,
-}
 
 pub fn run() {
     let mut zinc = cursive::default();
@@ -177,7 +141,7 @@ fn finish(z: &mut Cursive) {
         .unwrap()
         .to_string();
 
-    let selection = Selections {
+    let selection = Install {
         baseboard: board.into(),
         board,
         emmc,
@@ -187,9 +151,10 @@ fn finish(z: &mut Cursive) {
         rootpasswd,
         username,
         passwd,
+        ..Default::default()
     };
 
     z.pop_layer();
 
-    install::begin_install(selection);
+    Install::start(selection);
 }

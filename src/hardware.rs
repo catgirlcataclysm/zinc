@@ -12,6 +12,12 @@ pub enum Baseboard {
     None,
 }
 
+impl Default for Baseboard {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
 impl From<&&str> for Baseboard {
     fn from(value: &&str) -> Self {
         match *value {
@@ -56,6 +62,12 @@ pub enum Board {
     Minnie,
     Speedy,
     None,
+}
+
+impl Default for Board {
+    fn default() -> Self {
+        Self::None
+    }
 }
 
 impl Board {
