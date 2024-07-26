@@ -329,11 +329,12 @@ impl Default for Filesystem {
 impl Filesystem {
     fn mkfs(&self) {
         let rootpart = "/dev/disk/by-partlabel/Root";
+        
+        let output = Command::new("bash").args(["-c", "lsof | { head -1 ; grep mmcblk ; }"]).output().expect("yeag");
+        debug_output(output);
+        
         match self {
             Self::F2FS => {
-                let output = Command::new("bash").args(["-c", "lsof | { head -1 ; grep mmcblk ; }"]).output().expect("yeag");
-                debug_output(output);
-
                 let output = Command::new("mkfs.f2fs")
                     .args(["-f", rootpart])
                     .output()
