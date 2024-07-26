@@ -189,7 +189,9 @@ impl Install {
 
         let mut stdout_split = stdout.split_terminator("\n");
         debug!("split: {:#?}", stdout_split);
-    
+        
+
+        // subtract overflow error need to fix
         let remaining_size: usize = stdout_split
             .find(|o| o.contains("Sec GPT table"))
             .expect("can't find 'Sec GPT table' in cgpt output")
