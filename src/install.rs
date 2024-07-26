@@ -20,25 +20,25 @@ pub struct Install {
 
 impl Install {
     pub fn start(mut self) {
-        error!("Installing dependencies");
-        let output = Command::new("apk")
-            .args([
-                "add",
-                "u-boot-tools",
-                "vboot-utils",
-                "btrfs-progs",
-                "f2fs-tools",
-                "git",
-                "networkmanager",
-                "sudo",
-                "vim",
-                "cgpt",
-                "parted",
-                "wget",
-            ])
-            .output()
-            .expect("Failed to install necessary installation dependencies.");
-        debug_output(output);
+        //error!("Installing dependencies");
+        //let output = Command::new("apk")
+        //    .args([
+        //        "add",
+        //        "u-boot-tools",
+        //        "vboot-utils",
+        //        "btrfs-progs",
+        //        "f2fs-tools",
+        //        "git",
+        //        "networkmanager",
+        //        "sudo",
+        //        "vim",
+        //        "cgpt",
+        //        "parted",
+        //        "wget",
+        //    ])
+        //    .output()
+        //    .expect("Failed to install necessary installation dependencies.");
+        //debug_output(output);
 
         error!("Setting offset");
         self.set_offset();
