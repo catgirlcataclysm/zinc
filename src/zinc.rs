@@ -152,6 +152,6 @@ fn finish(z: &mut Cursive) {
     };
 
     z.pop_layer();
-
+    z.quit();
     install.start();
 }

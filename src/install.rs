@@ -228,7 +228,7 @@ impl Install {
 
     fn setup_debian(&self) {
         #[cfg(target_pointer_width = "64")]
-        Command::new("debootstrap")
+        let output = Command::new("debootstrap")
             .args([
                 "--arch=arm64",
                 "bookworm",
@@ -238,7 +238,7 @@ impl Install {
             .output()
             .expect("Failed to run debootstrap.");
         #[cfg(target_pointer_width = "32")]
-        Command::new("debootstrap")
+        let output = Command::new("debootstrap")
             .args([
                 "--arch=armhf",
                 "bookworm",
@@ -247,11 +247,13 @@ impl Install {
             ])
             .output()
             .expect("Failed to run debootstrap.");
+        debug_output(output);
 
-        Command::new("chroot")
+        let output = Command::new("chroot")
             .args(["/mnt", "apt", "update"])
             .output()
             .expect("Failed to run apt update inside chroot.");
+        debug_output(output);
     }
 
     fn setup_void(&self) {}
