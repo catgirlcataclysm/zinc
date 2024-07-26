@@ -1,7 +1,6 @@
 use std::{fs::create_dir_all, process::{exit, Command, Output}};
-
+use log::error;
 use fs_extra::dir::{self, CopyOptions};
-use log::debug;
 
 use crate::hardware::{Baseboard, Board};
 
@@ -21,7 +20,7 @@ pub struct Install {
 
 impl Install {
     pub fn start(mut self) {
-        debug!("Installing dependencies");
+        error!("Installing dependencies");
         let output = Command::new("apk")
             .args([
                 "add",
@@ -41,9 +40,9 @@ impl Install {
             .expect("Failed to install necessary installation dependencies.");
         debug_output(output);
 
-        debug!("Setting offset");
+        error!("Setting offset");
         self.set_offset();
-        debug!("Setting up partitions with cgpt");
+        error!("Setting up partitions with cgpt");
         self.cgpt_tomfoolery();
         self.fs.mkfs();
 
@@ -90,11 +89,11 @@ impl Install {
                 exit(1);
             }
         }
-        debug!("Offset is {}", self.offset);
+        error!("Offset is {}", self.offset);
     }
 
     fn cgpt_tomfoolery(&self) {
-        debug!("Running dd");
+        error!("Running dd");
         let output = Command::new("dd")
             .args([
                 "if=/dev/zero",
@@ -107,7 +106,7 @@ impl Install {
             .expect("Failed to zero beginning of the drive.");
         debug_output(output);
     
-        debug!("Running parted");
+        error!("Running parted");
         let output = Command::new("parted")
             .args(["--script", self.emmc.as_str(), "mklabel", "gpt"])
             .output()
@@ -116,14 +115,14 @@ impl Install {
 
         //fails and idk why
         // Should not fail anymore, needs testing - Radical
-        debug!("Running cgpt create");
+        error!("Running cgpt create");
         let output = Command::new("cgpt")
             .args(["create", self.emmc.as_str()])
             .output()
             .expect("Failed to create partition table on drive.");
         debug_output(output);
     
-        debug!("Running cgpt add MMCKernelA");
+        error!("Running cgpt add MMCKernelA");
         let output = Command::new("cgpt")
             .args([
                 "add",
@@ -149,7 +148,7 @@ impl Install {
             .expect("Failed to add first partition to eMMC.");
         debug_output(output);
     
-        debug!("Running cgpt add MMCKernelB");
+        error!("Running cgpt add MMCKernelB");
         let output = Command::new("cgpt")
             .args([
                 "add",
@@ -175,7 +174,7 @@ impl Install {
             .expect("Failed to add second partition to eMMC.");
         debug_output(output);
 
-        debug!("Getting remaining size");
+        error!("Getting remaining size");
         let output = Command::new("cgpt")
             .args([
                 "show",
@@ -188,7 +187,7 @@ impl Install {
         let stdout = String::from_utf8(output.stdout).expect("Output has non UTF-8 characters!");
 
         let mut stdout_split = stdout.split_terminator("\n");
-        debug!("split: {:#?}", stdout_split);
+        error!("split: {:#?}", stdout_split);
         
 
         // subtract overflow error need to fix
@@ -200,9 +199,9 @@ impl Install {
             .expect("can't find remaining size")
             .parse()
             .expect("remaining size is not an integer");
-        debug!("Remaining size: {}", remaining_size);
+        error!("Remaining size: {}", remaining_size);
     
-        debug!("Running cgpt add data");
+        error!("Running cgpt add data");
         let output = Command::new("cgpt")
             .args([
                 "add",
@@ -446,7 +445,7 @@ impl Default for Distro {
 }
 
 fn debug_output(output: Output) {
-    debug!(
+    error!(
         "status: {}\nstdout: {}\nstderr: {}",
         output.status,
         String::from_utf8_lossy(&output.stdout),
