@@ -141,7 +141,7 @@ fn finish(z: &mut Cursive) {
         .unwrap()
         .to_string();
 
-    let selection = Install {
+    let install = Install {
         baseboard: board.into(),
         board,
         emmc,
@@ -156,5 +156,5 @@ fn finish(z: &mut Cursive) {
 
     z.pop_layer();
 
-    Install::start(selection);
+    install.start();
 }
