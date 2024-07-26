@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use crate::{
     hardware::{self, Board},
     install::{Desktop, Distro, Filesystem, Install},
@@ -153,5 +155,6 @@ fn finish(z: &mut Cursive) {
 
     z.pop_layer();
     z.quit();
+    Command::new("clear").output().expect("g");
     install.start();
 }
