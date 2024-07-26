@@ -195,7 +195,7 @@ impl Install {
             .find(|o| o.contains("Sec GPT table"))
             .expect("can't find 'Sec GPT table' in cgpt output")
             .split_whitespace()
-            .nth(1)
+            .nth(0)
             .expect("can't find remaining size")
             .parse()
             .expect("remaining size is not an integer");
@@ -331,12 +331,13 @@ impl Filesystem {
         let rootpart = "/dev/disk/by-partlabel/Root";
         match self {
             Self::F2FS => {
-                Command::new("mkfs.f2fs")
+                let output = Command::new("mkfs.f2fs")
                     .args(["-f", rootpart])
                     .output()
                     .unwrap_or_else(|_| panic!("Failed to create F2FS filesystem on {}", rootpart));
-    
-                Command::new("mount")
+                debug_output(output);
+
+                let output = Command::new("mount")
                     .args([
                         "-o",
                         "compress_algorithm=zstd:6,compress_chksum,atgc,gc_merge,lazytime",
@@ -345,6 +346,7 @@ impl Filesystem {
                     ])
                     .output()
                     .expect("Failed to mount F2FS filesystem to /mnt");
+                debug_output(output);
             }
             Self::Ext4 => {
                 Command::new("mkfs.ext4")
