@@ -303,11 +303,12 @@ pub enum Desktop {
     GNOME,
     Sway,
     XFCE,
+    None,
 }
 
 impl Default for Desktop {
     fn default() -> Self {
-        Self::KDE
+        Self::None
     }
 }
 

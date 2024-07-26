@@ -95,7 +95,8 @@ fn config(z: &mut Cursive) {
                     .child(RadioButton::global("desktop", Desktop::KDE, "KDE Plasma"))
                     .child(RadioButton::global("desktop", Desktop::GNOME, "Gnome"))
                     .child(RadioButton::global("desktop", Desktop::Sway, "Sway"))
-                    .child(RadioButton::global("desktop", Desktop::XFCE, "XFCE")),
+                    .child(RadioButton::global("desktop", Desktop::XFCE, "XFCE"))
+                    .child(RadioButton::global("desktop", Desktop::None, "None")),
             ),
         ))
         .with_tab(NamedView::new(
