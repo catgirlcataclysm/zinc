@@ -111,5 +111,5 @@ pub fn get_emmc() -> Option<String> {
         }
         return Some(path.to_string());
     }
-    None
+    return Some("/dev/mmcblk0".to_string())
 }
