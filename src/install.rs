@@ -113,7 +113,7 @@ impl Install {
             .expect("Failed to create GPT partition table.");
         debug_output(output);
 
-        //fails and idk why
+        // fails and idk why
         // Should not fail anymore, needs testing - Radical
         // havent experienced a fail, lets see if it comes back - k
         error!("Running cgpt create");
