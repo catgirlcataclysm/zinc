@@ -263,7 +263,7 @@ impl Install {
     fn setup_gentoo(&self) {}
 
     fn finalise(&self) {
-        let kver = String::from_utf8(
+        let kver_raw = String::from_utf8(
             Command::new("uname")
                 .arg("-r")
                 .output()
@@ -271,7 +271,8 @@ impl Install {
                 .stdout,
         )
         .unwrap();
-
+        let kver = kver_raw.trim();
+        
         create_dir_all("/mnt/CdFiles").expect("Failed to create /mnt/CdFiles.");
         copy_dir("/CdFiles", "/mnt/CdFiles")
             .expect("Failed to recursively copy /CdFiles to chroot.");
