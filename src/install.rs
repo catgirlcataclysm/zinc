@@ -1,7 +1,6 @@
-use std::{fs::create_dir_all, io::copy, process::{exit, Command, Output}};
+use std::{fs::create_dir_all, process::{exit, Command, Output}};
 use dircpy::copy_dir;
 use log::error;
-use fs_extra::dir::{self, CopyOptions};
 
 use crate::hardware::{Baseboard, Board};
 
