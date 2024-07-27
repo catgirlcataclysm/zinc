@@ -265,6 +265,7 @@ impl Install {
     fn finalise(&self) {
         let options = CopyOptions {
             overwrite: true,
+            skip_exist: true,
             copy_inside: true,
             ..Default::default()
         };
