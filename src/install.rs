@@ -1,4 +1,5 @@
-use std::{fs::create_dir_all, process::{exit, Command, Output}};
+use std::{fs::create_dir_all, io::copy, process::{exit, Command, Output}};
+use dircpy::copy_dir;
 use log::error;
 use fs_extra::dir::{self, CopyOptions};
 
@@ -263,20 +264,14 @@ impl Install {
     fn setup_gentoo(&self) {}
 
     fn finalise(&self) {
-        let options = CopyOptions {
-            overwrite: true,
-            skip_exist: true,
-            copy_inside: true,
-            ..Default::default()
-        };
         create_dir_all("/mnt/CdFiles").expect("Failed to create /mnt/CdFiles.");
-        dir::copy("/CdFiles", "/mnt/CdFiles", &options)
+        copy_dir("/CdFiles", "/mnt/CdFiles")
             .expect("Failed to recursively copy /CdFiles to chroot.");
         create_dir_all("/mnt/lib/firmware").expect("Failed to create /mnt/lib/firmware.");
-        dir::copy("/lib/firmware", "/mnt/lib/firmware", &options)
+        copy_dir("/lib/firmware", "/mnt/lib/firmware")
             .expect("Failed to recursively copy /lib/firmware to /mnt/lib/firmware.");
         create_dir_all("/mnt/lib/modules").expect("Failed to create /mnt/lib/modules.");
-        dir::copy(
+        copy_dir(
             format!(
                 "/lib/modules/{}",
                 String::from_utf8(
@@ -298,8 +293,7 @@ impl Install {
                         .stdout
                 )
                 .unwrap()
-            ),
-            &options,
+            )
         )
         .expect("Failed to recursively copy kernel modules to /mnt/lib/modules");
     }
