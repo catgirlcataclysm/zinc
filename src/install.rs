@@ -263,7 +263,11 @@ impl Install {
     fn setup_gentoo(&self) {}
 
     fn finalise(&self) {
-        let options = CopyOptions::new();
+        let options = CopyOptions {
+            overwrite: true,
+            copy_inside: true,
+            ..Default::default()
+        };
         create_dir_all("/mnt/CdFiles").expect("Failed to create /mnt/CdFiles.");
         dir::copy("/CdFiles", "/mnt/CdFiles", &options)
             .expect("Failed to recursively copy /CdFiles to chroot.");
