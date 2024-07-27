@@ -264,9 +264,10 @@ impl Install {
 
     fn finalise(&self) {
         let options = CopyOptions::new();
+        create_dir_all("/mnt/CdFiles").expect("Failed to create /mnt/CdFiles.");
         dir::copy("/CdFiles", "/mnt/CdFiles", &options)
-            .expect("Failed to recursively copy /CdFiles to chroot");
-        create_dir_all("/mnt/lib/firmware").expect("Failed to create /mnt/lib/firmware");
+            .expect("Failed to recursively copy /CdFiles to chroot.");
+        create_dir_all("/mnt/lib/firmware").expect("Failed to create /mnt/lib/firmware.");
         dir::copy("/lib/firmware", "/mnt/lib/firmware", &options)
             .expect("Failed to recursively copy /lib/firmware to /mnt/lib/firmware.");
         create_dir_all("/mnt/lib/modules").expect("Failed to create /mnt/lib/modules.");

@@ -154,7 +154,9 @@ fn finish(z: &mut Cursive) {
     };
 
     z.pop_layer();
+    // this doesnt work how it should
     z.quit();
     Command::new("clear").output().expect("g");
+    
     install.start();
 }
