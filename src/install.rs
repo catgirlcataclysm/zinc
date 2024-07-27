@@ -1,6 +1,9 @@
-use std::{fs::create_dir_all, process::{exit, Command, Output}};
 use dircpy::copy_dir;
 use log::error;
+use std::{
+    fs::create_dir_all,
+    process::{exit, Command, Output},
+};
 
 use crate::hardware::{Baseboard, Board};
 
@@ -67,7 +70,7 @@ impl Install {
         self.finalise();
     }
 
-    pub fn set_offset(&mut self) {    
+    pub fn set_offset(&mut self) {
         match self.baseboard {
             Baseboard::Gru => {
                 self.offset = 0;
@@ -105,7 +108,7 @@ impl Install {
             .output()
             .expect("Failed to zero beginning of the drive.");
         debug_output(output);
-    
+
         error!("Running parted");
         let output = Command::new("parted")
             .args(["--script", self.emmc.as_str(), "mklabel", "gpt"])
@@ -122,7 +125,7 @@ impl Install {
             .output()
             .expect("Failed to create partition table on drive.");
         debug_output(output);
-    
+
         error!("Running cgpt add MMCKernelA");
         let output = Command::new("cgpt")
             .args([
@@ -148,7 +151,7 @@ impl Install {
             .output()
             .expect("Failed to add first partition to eMMC.");
         debug_output(output);
-    
+
         error!("Running cgpt add MMCKernelB");
         let output = Command::new("cgpt")
             .args([
@@ -177,19 +180,15 @@ impl Install {
 
         error!("Getting remaining size");
         let output = Command::new("cgpt")
-            .args([
-                "show",
-                self.emmc.as_str(),
-            ])
+            .args(["show", self.emmc.as_str()])
             .output()
             .expect("Failed to query remaining space to partition");
         debug_output(output.clone());
 
         let stdout = String::from_utf8(output.stdout).expect("Output has non UTF-8 characters!");
 
-        let mut stdout_split = stdout.split_terminator("\n");
+        let mut stdout_split = stdout.split_terminator('\n');
         error!("split: {:#?}", stdout_split);
-        
 
         // subtract overflow error need to fix
         let remaining_size: usize = stdout_split
@@ -201,7 +200,7 @@ impl Install {
             .parse()
             .expect("remaining size is not an integer");
         error!("Remaining size: {}", remaining_size);
-    
+
         error!("Running cgpt add data");
         let output = Command::new("cgpt")
             .args([
@@ -269,7 +268,7 @@ impl Install {
                 .arg("-r")
                 .output()
                 .expect("Failed to run 'uname -r'.")
-                .stdout
+                .stdout,
         )
         .unwrap();
 
@@ -281,10 +280,7 @@ impl Install {
             .expect("Failed to recursively copy /lib/firmware to /mnt/lib/firmware.");
         create_dir_all("/mnt/lib/modules").expect("Failed to create /mnt/lib/modules.");
         copy_dir(
-            format!(
-                "/lib/modules/{}", kver
-                
-            ),
+            format!("/lib/modules/{}", kver),
             format!(
                 "/mnt/lib/modules/{}",
                 String::from_utf8(
@@ -295,11 +291,10 @@ impl Install {
                         .stdout
                 )
                 .unwrap()
-            )
+            ),
         )
         .expect("Failed to recursively copy kernel modules to /mnt/lib/modules");
     }
-
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -333,10 +328,13 @@ impl Default for Filesystem {
 impl Filesystem {
     fn mkfs(&self) {
         let rootpart = "/dev/disk/by-partlabel/Root";
-        
-        let output = Command::new("bash").args(["-c", "lsof | { head -1 ; grep mmcblk ; }"]).output().expect("yeag");
+
+        let output = Command::new("bash")
+            .args(["-c", "lsof | { head -1 ; grep mmcblk ; }"])
+            .output()
+            .expect("yeag");
         debug_output(output);
-        
+
         match self {
             Self::F2FS => {
                 let output = Command::new("mkfs.f2fs")
@@ -361,7 +359,7 @@ impl Filesystem {
                     .args(["-F", rootpart])
                     .output()
                     .unwrap_or_else(|_| panic!("Failed to create Ext4 filesystem on {}", rootpart));
-    
+
                 Command::new("mount")
                     .args([rootpart, "/mnt"])
                     .output()
@@ -371,38 +369,40 @@ impl Filesystem {
                 Command::new("mkfs.btrfs")
                     .args(["-f", rootpart])
                     .output()
-                    .unwrap_or_else(|_| panic!("Failed to create Btrfs filesystem on {}", rootpart));
-    
+                    .unwrap_or_else(|_| {
+                        panic!("Failed to create Btrfs filesystem on {}", rootpart)
+                    });
+
                 Command::new("mount")
                     .args([rootpart, "/mnt"])
                     .output()
                     .expect("Failed to mount Btrfs filesystem to /mnt.");
-    
+
                 Command::new("btrfs")
                     .args(["subvolume", "create", "/mnt/.system"])
                     .output()
                     .expect("Failed to create system subvolume.");
-    
+
                 Command::new("btrfs")
                     .args(["subvolume", "create", "/mnt/.system/root"])
                     .output()
                     .expect("Failed to create root subvolume.");
-    
+
                 Command::new("btrfs")
                     .args(["subvolume", "create", "/mnt/.system/home"])
                     .output()
                     .expect("Failed to create home subvolume.");
-    
+
                 Command::new("btrfs")
                     .args(["subvolume", "create", "/mnt/.snapshots"])
                     .output()
                     .expect("Failed to create snapshots subvolume.");
-    
+
                 Command::new("umount")
                     .arg("/mnt")
                     .output()
                     .expect("Failed to unmount btrfs filesystem.");
-    
+
                 Command::new("mount")
                     .args([
                         "-o",
@@ -412,7 +412,7 @@ impl Filesystem {
                     ])
                     .output()
                     .expect("Failed to mount root subvolume to /mnt");
-    
+
                 Command::new("mount")
                     .args([
                         "--mkdir",
@@ -423,7 +423,7 @@ impl Filesystem {
                     ])
                     .output()
                     .expect("Failed to mount home subvolume to /mnt/home");
-    
+
                 Command::new("mount")
                     .args([
                         "--mkdir",
