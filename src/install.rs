@@ -281,17 +281,7 @@ impl Install {
         create_dir_all("/mnt/lib/modules").expect("Failed to create /mnt/lib/modules.");
         copy_dir(
             format!("/lib/modules/{}", kver),
-            format!(
-                "/mnt/lib/modules/{}",
-                String::from_utf8(
-                    Command::new("uname")
-                        .arg("-r")
-                        .output()
-                        .expect("Failed to run 'uname -r'.")
-                        .stdout
-                )
-                .unwrap()
-            ),
+            format!("/mnt/lib/modules/{}", kver),
         )
         .expect("Failed to recursively copy kernel modules to /mnt/lib/modules");
     }
