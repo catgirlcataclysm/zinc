@@ -637,10 +637,10 @@ impl Default for Init {
 }
 
 fn debug_output(output: Output) {
-    error!(
+    fs::write("err.log", format!(
         "status: {}\nstdout: {}\nstderr: {}",
         output.status,
         String::from_utf8_lossy(&output.stdout),
         String::from_utf8_lossy(&output.stderr)
-    );
+    )).expect("Failed to write stdout and stderr to file.");
 }
