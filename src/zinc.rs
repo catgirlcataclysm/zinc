@@ -154,11 +154,12 @@ fn finish(z: &mut Cursive) {
         rootpasswd,
         username,
         passwd,
+        init: distro.into(),
         ..Default::default()
     };
 
     z.pop_layer();
-    // this doesnt work how it should
+    // this doesnt work how it should - expected behavior: resetting terminal to normal state to show log output
     z.quit();
     Command::new("clear").output().expect("g");
 

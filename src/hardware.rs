@@ -2,7 +2,7 @@ use std::fs::{self, read_dir};
 
 use crate::BOARDS;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Baseboard {
     Gru,
     Kukui,
