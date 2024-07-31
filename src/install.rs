@@ -432,7 +432,7 @@ impl Install {
             Distro::ArchLinux => todo!(),
             Distro::Debian => {
                 let output = Command::new("chroot")
-                    .args(["/mnt", "/sbin/useradd", self.username.trim()])
+                    .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
                     .output()
                     .expect("Failed to create user in chroot.");
                 debug_output(output);
