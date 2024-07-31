@@ -458,10 +458,10 @@ impl Install {
 
 #[derive(Clone, Copy, Debug)]
 pub enum Desktop {
-    KDE,
-    GNOME,
+    Kde,
+    Gnome,
     Sway,
-    XFCE,
+    Xfce,
     None,
 }
 
