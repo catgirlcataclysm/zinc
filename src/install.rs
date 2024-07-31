@@ -2,7 +2,6 @@ use dircpy::copy_dir;
 use log::error;
 use std::{
     fs::{self, create_dir_all},
-    io::stdin,
     process::{exit, Command, Output},
 };
 
