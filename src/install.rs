@@ -420,23 +420,31 @@ impl Install {
     }
 
     fn create_users(self) {
-        let output = Command::new("chroot")
-            .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
-            .output()
-            .expect("Failed to create user in chroot.");
-        debug_output(output);
-        //// need to input password
-        //let output = Command::new("chroot")
-        //    .args(["/mnt", "passwd", self.username.trim()])
-        //    .output()
-        //    .expect("Failed to set user password");
-        //debug_output(output);
-        //// need to input root password
-        //let output = Command::new("chroot")
-        //    .args(["/mnt", "passwd"])
-        //    .output()
-        //    .expect("Failed to set root password.");
-        //debug_output(output);
+        match self.distro {
+            Distro::ArchLinux => todo!(),
+            Distro::Debian => {
+                let output = Command::new("chroot")
+                    .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
+                    .output()
+                    .expect("Failed to create user in chroot.");
+                debug_output(output);
+                //// need to input password
+                //let output = Command::new("chroot")
+                //    .args(["/mnt", "passwd", self.username.trim()])
+                //    .output()
+                //    .expect("Failed to set user password");
+                //debug_output(output);
+                //// need to input root password
+                //let output = Command::new("chroot")
+                //    .args(["/mnt", "passwd"])
+                //    .output()
+                //    .expect("Failed to set root password.");
+                //debug_output(output);
+            }
+            Distro::Void => todo!(),
+            Distro::VoidMusl => todo!(),
+            Distro::Gentoo => todo!(),
+        }
     }
 }
 
