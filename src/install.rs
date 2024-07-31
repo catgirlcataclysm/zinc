@@ -69,6 +69,7 @@ impl Install {
         }
 
         self.finalize_install();
+        self.create_users();
     }
 
     pub fn set_offset(&mut self) {
@@ -365,6 +366,23 @@ impl Install {
             debug_output(output);
         }
 
+    }
+
+    fn create_users(self) {
+        match self.distro {
+            Distro::ArchLinux => todo!(),
+            Distro::Debian => {
+                let output = Command::new("chroot").args(["/mnt", "adduser", self.username.trim()]).output().expect("Failed to create user in chroot.");
+                debug_output(output);
+                let output = Command::new("chroot").args(["/mnt", "passwd", self.username.trim(), self.passwd.trim()]).output().expect("Failed to set user password");
+                debug_output(output);
+                let output = Command::new("chroot").args(["/mnt", "passwd", self.rootpasswd.trim()]).output().expect("Failed to set root password.");
+                debug_output(output);
+            },
+            Distro::Void => todo!(),
+            Distro::VoidMusl => todo!(),
+            Distro::Gentoo => todo!(),
+        }
     }
 }
 
