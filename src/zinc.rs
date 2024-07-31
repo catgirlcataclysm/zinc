@@ -94,10 +94,10 @@ fn config(z: &mut Cursive) {
                 2,
                 2,
                 LinearLayout::vertical()
-                    .child(RadioButton::global("desktop", Desktop::KDE, "KDE Plasma"))
-                    .child(RadioButton::global("desktop", Desktop::GNOME, "Gnome"))
+                    .child(RadioButton::global("desktop", Desktop::Kde, "KDE Plasma"))
+                    .child(RadioButton::global("desktop", Desktop::Gnome, "Gnome"))
                     .child(RadioButton::global("desktop", Desktop::Sway, "Sway"))
-                    .child(RadioButton::global("desktop", Desktop::XFCE, "XFCE"))
+                    .child(RadioButton::global("desktop", Desktop::Xfce, "XFCE"))
                     .child(RadioButton::global("desktop", Desktop::None, "None")),
             ),
         ))
