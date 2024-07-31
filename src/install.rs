@@ -98,7 +98,6 @@ impl Install {
     }
 
     fn cgpt_tomfoolery(&self) {
-        error!("Running dd");
         let output = Command::new("dd")
             .args([
                 "if=/dev/zero",
@@ -111,7 +110,6 @@ impl Install {
             .expect("Failed to zero beginning of the drive.");
         debug_output(output);
 
-        error!("Running parted");
         let output = Command::new("parted")
             .args(["--script", self.emmc.as_str(), "mklabel", "gpt"])
             .output()
@@ -121,14 +119,12 @@ impl Install {
         // fails and idk why
         // Should not fail anymore, needs testing - Radical
         // havent experienced a fail, lets see if it comes back - k
-        error!("Running cgpt create");
         let output = Command::new("cgpt")
             .args(["create", self.emmc.as_str()])
             .output()
             .expect("Failed to create partition table on drive.");
         debug_output(output);
 
-        error!("Running cgpt add MMCKernelA");
         let output = Command::new("cgpt")
             .args([
                 "add",
@@ -154,7 +150,6 @@ impl Install {
             .expect("Failed to add first partition to eMMC.");
         debug_output(output);
 
-        error!("Running cgpt add MMCKernelB");
         let output = Command::new("cgpt")
             .args([
                 "add",
@@ -180,7 +175,6 @@ impl Install {
             .expect("Failed to add second partition to eMMC.");
         debug_output(output);
 
-        error!("Getting remaining size");
         let output = Command::new("cgpt")
             .args(["show", self.emmc.as_str()])
             .output()
@@ -201,9 +195,7 @@ impl Install {
             .expect("can't find remaining size")
             .parse()
             .expect("remaining size is not an integer");
-        error!("Remaining size: {}", remaining_size);
 
-        error!("Running cgpt add data");
         let output = Command::new("cgpt")
             .args([
                 "add",
@@ -428,31 +420,23 @@ impl Install {
     }
 
     fn create_users(self) {
-        match self.distro {
-            Distro::ArchLinux => todo!(),
-            Distro::Debian => {
-                let output = Command::new("chroot")
-                    .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
-                    .output()
-                    .expect("Failed to create user in chroot.");
-                debug_output(output);
-                //// need to input password
-                //let output = Command::new("chroot")
-                //    .args(["/mnt", "passwd", self.username.trim()])
-                //    .output()
-                //    .expect("Failed to set user password");
-                //debug_output(output);
-                //// need to input root password
-                //let output = Command::new("chroot")
-                //    .args(["/mnt", "passwd"])
-                //    .output()
-                //    .expect("Failed to set root password.");
-                //debug_output(output);
-            }
-            Distro::Void => todo!(),
-            Distro::VoidMusl => todo!(),
-            Distro::Gentoo => todo!(),
-        }
+        let output = Command::new("chroot")
+            .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
+            .output()
+            .expect("Failed to create user in chroot.");
+        debug_output(output);
+        //// need to input password
+        //let output = Command::new("chroot")
+        //    .args(["/mnt", "passwd", self.username.trim()])
+        //    .output()
+        //    .expect("Failed to set user password");
+        //debug_output(output);
+        //// need to input root password
+        //let output = Command::new("chroot")
+        //    .args(["/mnt", "passwd"])
+        //    .output()
+        //    .expect("Failed to set root password.");
+        //debug_output(output);
     }
 }
 
