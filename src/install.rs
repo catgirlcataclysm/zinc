@@ -1,7 +1,9 @@
 use dircpy::copy_dir;
 use log::error;
 use std::{
-    fs::{self, create_dir_all}, io::stdin, process::{exit, Command, Output}
+    fs::{self, create_dir_all},
+    io::stdin,
+    process::{exit, Command, Output},
 };
 
 use crate::hardware::{Baseboard, Board};
@@ -637,11 +639,15 @@ impl Default for Init {
     }
 }
 
-fn debug_output(output: Output) {
-    fs::write("zinc.log", format!(
-        "status: {}\nstdout: {}\nstderr: {}",
-        output.status,
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    )).expect("Failed to write stdout and stderr to file.");
+pub fn debug_output(output: Output) {
+    fs::write(
+        "zinc.log",
+        format!(
+            "status: {}\nstdout: {}\nstderr: {}",
+            output.status,
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        ),
+    )
+    .expect("Failed to write stdout and stderr to file.");
 }

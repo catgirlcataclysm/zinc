@@ -1,5 +1,6 @@
 use std::process::Command;
 
+use install::debug_output;
 use simple_logger::SimpleLogger;
 
 mod hardware;
@@ -20,5 +21,10 @@ fn main() {
         .arg("connect")
         .status()
         .expect("Failed to query NetworkManager.");
+    let output = Command::new("umount")
+        .arg("/mnt")
+        .output()
+        .expect("Failed to unmount /mnt");
+    debug_output(output);
     zinc::run();
 }
