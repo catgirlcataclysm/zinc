@@ -637,7 +637,7 @@ impl Default for Init {
 }
 
 fn debug_output(output: Output) {
-    fs::write("err.log", format!(
+    fs::write("zinc.log", format!(
         "status: {}\nstdout: {}\nstderr: {}",
         output.status,
         String::from_utf8_lossy(&output.stdout),
