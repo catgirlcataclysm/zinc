@@ -256,8 +256,19 @@ impl Install {
             .output()
             .expect("Failed to run apt update inside chroot.");
         debug_output(output);
-        
-        let output = Command::new("chroot").args(["/mnt", "apt", "install", "-y", "u-boot-tools", "vboot-utils", "cgpt"]).output().expect("Failed to install necessary bootloader packages.");
+
+        let output = Command::new("chroot")
+            .args([
+                "/mnt",
+                "apt",
+                "install",
+                "-y",
+                "u-boot-tools",
+                "vboot-utils",
+                "cgpt",
+            ])
+            .output()
+            .expect("Failed to install necessary bootloader packages.");
         debug_output(output);
     }
 
@@ -277,7 +288,7 @@ impl Install {
         )
         .unwrap();
         let kver = kver_raw.trim();
-        
+
         create_dir_all("/mnt/CdFiles").expect("Failed to create /mnt/CdFiles.");
         copy_dir("/CdFiles", "/mnt/CdFiles")
             .expect("Failed to recursively copy /CdFiles to chroot.");
@@ -290,95 +301,152 @@ impl Install {
             format!("/mnt/lib/modules/{}", kver),
         )
         .expect("Failed to recursively copy kernel modules to /mnt/lib/modules");
-        
+
         match self.board {
             Board::Bob => {
-                create_dir_all("/mnt/etc/udev/hwdb.d").expect("Failed to create /mnt/etc/udev/hwdb.d");
+                create_dir_all("/mnt/etc/udev/hwdb.d")
+                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
                 fs::copy("/CdFiles/board/bob/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot").args(["/mnt", "udevadm", "hwdb", "-u"]).output().expect("Failed to run 'udevadm hwdb -u' inside chroot.");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "udevadm", "hwdb", "-u"])
+                    .output()
+                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
                 debug_output(output);
-            },
-            Board::Coachz => {},
+            }
+            Board::Coachz => {}
             Board::Hana => {
-                create_dir_all("/mnt/etc/udev/hwdb.d").expect("Failed to create /mnt/etc/udev/hwdb.d");
+                create_dir_all("/mnt/etc/udev/hwdb.d")
+                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
                 fs::copy("/CdFiles/board/hana/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot").args(["/mnt", "udevadm", "hwdb", "-u"]).output().expect("Failed to run 'udevadm hwdb -u' inside chroot.");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "udevadm", "hwdb", "-u"])
+                    .output()
+                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
                 debug_output(output);
-            },
-            Board::Homestar => {},
+            }
+            Board::Homestar => {}
             Board::Kevin => {
-                create_dir_all("/mnt/etc/udev/hwdb.d").expect("Failed to create /mnt/etc/udev/hwdb.d");
+                create_dir_all("/mnt/etc/udev/hwdb.d")
+                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
                 fs::copy("/CdFiles/board/kevin/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot").args(["/mnt", "udevadm", "hwdb", "-u"]).output().expect("Failed to run 'udevadm hwdb -u' inside chroot.");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "udevadm", "hwdb", "-u"])
+                    .output()
+                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
                 debug_output(output);
-            },
+            }
             Board::Kodama => {
                 create_dir_all("/mnt/etc/libinput").expect("Failed to create /mnt/etc/libinput");
                 fs::copy("/CdFiles/board/kodama/local-overrides.quirks", "/mnt/etc/libinput/local-overrides.quirks").expect("Failed to copy local-overrides.quirks from cadmium board folder to /etc/libinput.");
-                create_dir_all("/mnt/etc/udev/hwdb.d").expect("Failed to create /mnt/etc/udev/hwdb.d");
+                create_dir_all("/mnt/etc/udev/hwdb.d")
+                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
                 fs::copy("/CdFiles/board/kodama/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot").args(["/mnt", "udevadm", "hwdb", "-u"]).output().expect("Failed to run 'udevadm hwdb -u' inside chroot.");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "udevadm", "hwdb", "-u"])
+                    .output()
+                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
                 debug_output(output);
-            },
+            }
             Board::Krane => {
                 create_dir_all("/mnt/etc/libinput").expect("Failed to create /mnt/etc/libinput");
                 fs::copy("/CdFiles/board/krane/local-overrides.quirks", "/mnt/etc/libinput/local-overrides.quirks").expect("Failed to copy local-overrides.quirks from cadmium board folder to /etc/libinput.");
-                create_dir_all("/mnt/etc/udev/hwdb.d").expect("Failed to create /mnt/etc/udev/hwdb.d");
+                create_dir_all("/mnt/etc/udev/hwdb.d")
+                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
                 fs::copy("/CdFiles/board/krane/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot").args(["/mnt", "udevadm", "hwdb", "-u"]).output().expect("Failed to run 'udevadm hwdb -u' inside chroot.");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "udevadm", "hwdb", "-u"])
+                    .output()
+                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
                 debug_output(output);
-            },
-            Board::Lazor => {},
+            }
+            Board::Lazor => {}
             Board::Minnie => {
-                create_dir_all("/mnt/etc/udev/hwdb.d").expect("Failed to create /mnt/etc/udev/hwdb.d");
+                create_dir_all("/mnt/etc/udev/hwdb.d")
+                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
                 fs::copy("/CdFiles/board/minnie/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot").args(["/mnt", "udevadm", "hwdb", "-u"]).output().expect("Failed to run 'udevadm hwdb -u' inside chroot.");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "udevadm", "hwdb", "-u"])
+                    .output()
+                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
                 debug_output(output);
-            },
-            Board::Speedy => {},
-            Board::None => {},
+            }
+            Board::Speedy => {}
+            Board::None => {}
         }
-        
+
         if self.baseboard == Baseboard::Trogdor {
-            let output = Command::new("make").args(["-C", "/CdFiles/qmic", "prefix=/mnt/usr", "install"]).output().expect("Failed to run make in /CdFiles/qmic.");
+            let output = Command::new("make")
+                .args(["-C", "/CdFiles/qmic", "prefix=/mnt/usr", "install"])
+                .output()
+                .expect("Failed to run make in /CdFiles/qmic.");
             debug_output(output);
-            let output = Command::new("make").args(["-C", "/CdFiles/qrtr", "prefix=/mnt/usr", "install"]).output().expect("Failed to run make in /CdFiles/qrtr");
+            let output = Command::new("make")
+                .args(["-C", "/CdFiles/qrtr", "prefix=/mnt/usr", "install"])
+                .output()
+                .expect("Failed to run make in /CdFiles/qrtr");
             debug_output(output);
-            let output = Command::new("make").args(["-C", "/CdFiles/rmtfs", "prefix=/mnt/usr", "install"]).output().expect("Failed to run make in /CdFiles/rmtfs");
+            let output = Command::new("make")
+                .args(["-C", "/CdFiles/rmtfs", "prefix=/mnt/usr", "install"])
+                .output()
+                .expect("Failed to run make in /CdFiles/rmtfs");
             debug_output(output);
-            
+
             match self.init {
                 Init::Systemd => {
-                    let output = Command::new("chroot").args(["/mnt", "systemctl", "enable", "rmtfs"]).output().expect("Failed to enable rmtfs service in chroot");
+                    let output = Command::new("chroot")
+                        .args(["/mnt", "systemctl", "enable", "rmtfs"])
+                        .output()
+                        .expect("Failed to enable rmtfs service in chroot");
                     debug_output(output);
-                },
+                }
                 Init::Openrc => {
-                    let output = Command::new("chroot").args(["/mnt", "rc-update", "add", "rmtfs", "default"]).output().expect("Failed to enable rmtfs service in chroot");
+                    let output = Command::new("chroot")
+                        .args(["/mnt", "rc-update", "add", "rmtfs", "default"])
+                        .output()
+                        .expect("Failed to enable rmtfs service in chroot");
                     debug_output(output);
-                },
+                }
                 Init::Runit => {
-                    let output = Command::new("chroot").args(["/mnt", "sv", "up", "rmtfs"]).output().expect("Failed to enable rmtfs service in chroot");
+                    let output = Command::new("chroot")
+                        .args(["/mnt", "sv", "up", "rmtfs"])
+                        .output()
+                        .expect("Failed to enable rmtfs service in chroot");
                     debug_output(output);
-                },
+                }
             }
 
-            let output = Command::new("dd").args(["if=/dev/disk/by-partlabel/SDKernelA", "of=/dev/disk/by-partlabel/MMCKernelA", "status=progress"]).output().expect("Failed to copy Kernel to eMMC.");
+            let output = Command::new("dd")
+                .args([
+                    "if=/dev/disk/by-partlabel/SDKernelA",
+                    "of=/dev/disk/by-partlabel/MMCKernelA",
+                    "status=progress",
+                ])
+                .output()
+                .expect("Failed to copy Kernel to eMMC.");
             debug_output(output);
         }
-
     }
 
     fn create_users(self) {
         match self.distro {
             Distro::ArchLinux => todo!(),
             Distro::Debian => {
-                let output = Command::new("chroot").args(["/mnt", "adduser", self.username.trim()]).output().expect("Failed to create user in chroot.");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "adduser", self.username.trim()])
+                    .output()
+                    .expect("Failed to create user in chroot.");
                 debug_output(output);
-                let output = Command::new("chroot").args(["/mnt", "passwd", self.username.trim(), self.passwd.trim()]).output().expect("Failed to set user password");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "passwd", self.username.trim(), self.passwd.trim()])
+                    .output()
+                    .expect("Failed to set user password");
                 debug_output(output);
-                let output = Command::new("chroot").args(["/mnt", "passwd", self.rootpasswd.trim()]).output().expect("Failed to set root password.");
+                let output = Command::new("chroot")
+                    .args(["/mnt", "passwd", self.rootpasswd.trim()])
+                    .output()
+                    .expect("Failed to set root password.");
                 debug_output(output);
-            },
+            }
             Distro::Void => todo!(),
             Distro::VoidMusl => todo!(),
             Distro::Gentoo => todo!(),
@@ -547,7 +615,7 @@ impl Default for Distro {
 pub enum Init {
     Systemd,
     Openrc,
-    Runit
+    Runit,
 }
 
 impl From<Distro> for Init {
