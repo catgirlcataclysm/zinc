@@ -1,7 +1,7 @@
-use std::process::Command;
+use std::{fs::File, process::Command};
 
 use install::debug_output;
-use simple_logger::SimpleLogger;
+use simplelog::{Config, WriteLogger};
 
 mod hardware;
 mod install;
@@ -12,10 +12,7 @@ pub const BOARDS: [&str; 10] = [
 ];
 pub const BASEBOARDS: [&str; 5] = ["gru", "kukui", "oak", "trogdor", "veyron"];
 fn main() {
-    let _ = SimpleLogger::new()
-        .with_level(log::LevelFilter::Info)
-        .env()
-        .init();
+    WriteLogger::init(log::LevelFilter::Debug, Config::default(), File::create("zinc.log").expect("Failed to create zinc.log")).expect("Failed to initialise logger.");
 
     Command::new("nmtui")
         .arg("connect")

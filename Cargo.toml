@@ -8,4 +8,4 @@ cursive = { version = "0.20.0", features = ["crossterm-backend"], default-featur
 cursive-tabs = "0.7.0"
 dircpy = "0.3.18"
 log = "0.4.22"
-simple_logger = "5.0.0"
+simplelog = "0.12.2"
