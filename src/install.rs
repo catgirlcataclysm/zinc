@@ -3,7 +3,7 @@ use log::{debug, error};
 use std::{
     fs::{self, create_dir_all},
     io::Write,
-    process::{exit, Command, Output},
+    process::{exit, Command, Output, Stdio},
 };
 
 use crate::hardware::{Baseboard, Board};
@@ -423,25 +423,23 @@ impl Install {
                 // need to input password
                 let mut child = Command::new("chroot")
                     .args(["/mnt", "passwd", "--stdin", self.username.trim()])
+                    .stdin(Stdio::piped())
                     .spawn()
                     .expect("Failed to set user password.");
-                let mut child_stdin = child.stdin.as_ref().unwrap();
-                child_stdin
-                    .write_all(self.passwd.as_bytes())
-                    .expect("Failed to write passwd to stdin.");
-                child_stdin.flush().expect("Failed to flush stdin.");
-                child.wait().expect("Failed to set user password.");
+                let mut stdin = child.stdin.take().expect("Failed to open stdin");
+                std::thread::spawn(move || {
+                    stdin.write_all(self.passwd.as_bytes()).expect("Failed to write passwd to stdin");
+                });
                 // need to input root password
                 let mut child = Command::new("chroot")
                     .args(["/mnt", "passwd", "--stdin"])
+                    .stdin(Stdio::piped())
                     .spawn()
                     .expect("Failed to set root password.");
-                let mut child_stdin = child.stdin.as_ref().unwrap();
-                child_stdin
-                    .write_all(self.rootpasswd.as_bytes())
-                    .expect("Failed to write root passwd to stdin.");
-                child_stdin.flush().expect("Failed to flush stdin.");
-                child.wait().expect("Failed to set root password.");
+                let mut stdin = child.stdin.take().expect("Failed to open stdin");
+                std::thread::spawn(move || {
+                    stdin.write_all(self.rootpasswd.as_bytes()).expect("Failed to write rootpasswd to stdin");
+                });
             }
             Distro::Void => todo!(),
             Distro::VoidMusl => todo!(),
