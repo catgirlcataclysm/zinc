@@ -116,7 +116,7 @@ pub fn get_emmc() -> Option<String> {
 
         writeln!(logfile, "{}", path).expect("Failed to list paths to paths.log");
 
-        if path != "/dev/mmcblk0" || path != "/dev/mmcblk1" {
+        if path != "/dev/mmcblk0".to_string() || path != "/dev/mmcblk1".to_string() {
             continue;
         }
         return Some(path.to_string());
