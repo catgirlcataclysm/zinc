@@ -408,7 +408,6 @@ impl Install {
             .args([
                 "if=/dev/disk/by-partlabel/SDKernelA",
                 "of=/dev/disk/by-partlabel/MMCKernelA",
-                "status=progress",
             ])
             .output()
             .expect("Failed to copy Kernel to eMMC.");
