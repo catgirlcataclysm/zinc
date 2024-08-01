@@ -2,8 +2,8 @@ use dircpy::copy_dir;
 use log::error;
 use std::{
     fs::{self, create_dir_all, OpenOptions},
+    io::Write,
     process::{exit, Command, Output},
-    io::Write
 };
 
 use crate::hardware::{Baseboard, Board};
@@ -632,10 +632,15 @@ impl Default for Init {
 }
 
 pub fn debug_output(output: Output) {
-    let mut logfile = OpenOptions::new().append(true).create(true).open("zinc.log").expect("Failed to create/open zinc.log");
+    let mut logfile = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open("zinc.log")
+        .expect("Failed to create/open zinc.log");
     writeln!(
         logfile,
-        "{}", format!(
+        "{}",
+        format!(
             "status: {}\nstdout: {}\nstderr: {}",
             output.status,
             String::from_utf8_lossy(&output.stdout),
