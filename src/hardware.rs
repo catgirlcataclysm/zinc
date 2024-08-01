@@ -102,24 +102,27 @@ impl From<&&str> for Board {
     }
 }
 //this whole function is broken
+// maybe no longer?
 pub fn get_emmc() -> Option<String> {
     let dev = read_dir("/dev").expect("Failed to list /dev.");
-    for path_raw in dev.flatten() {
-        let path = path_raw.path();
-        let path = path.to_string_lossy().trim().to_string();
-        
-        let mut logfile = OpenOptions::new()
-        .append(true)
-        .create(true)
-        .open("paths.log")
-        .expect("Failed to create/open paths.log");
-
-        writeln!(logfile, "{}", path).expect("Failed to list paths to paths.log");
-
-        if path != "/dev/mmcblk0".to_string() || path != "/dev/mmcblk1".to_string() {
-            continue;
+    let path = dev.into_iter().find_map(|p| {
+        let path = p.unwrap().path().to_string_lossy().trim().to_string();
+        if &path == "/dev/mmcblk0" || &path == "/dev/mmcblk1" {
+            Some(path)
+        } else {
+            None
         }
-        return Some(path.to_string());
-    }
-    None
+    });
+    path
+    //for path_raw in dev.flatten() {
+    //    let path = path_raw.path();
+    //    let path = path.to_string_lossy().trim().to_string();
+    //    
+    //    if path != "/dev/mmcblk0".to_string() || path != "/dev/mmcblk1".to_string() {
+    //        continue;
+    //    } else {
+    //        return Some(path)
+    //    }
+    //}
+    //path
 }
