@@ -425,7 +425,7 @@ impl Install {
                     .args(["/mnt", "passwd", self.username.trim()])
                     .spawn()
                     .expect("Failed to set user password.");
-                let child_stdin = child.stdin.as_mut().unwrap();
+                let mut child_stdin = child.stdin.as_ref().unwrap();
                 child_stdin
                     .write_all(self.passwd.as_bytes())
                     .expect("Failed to write passwd to stdin.");
@@ -436,7 +436,7 @@ impl Install {
                     .args(["/mnt", "passwd"])
                     .spawn()
                     .expect("Failed to set root password.");
-                let child_stdin = child.stdin.as_mut().unwrap();
+                let mut child_stdin = child.stdin.as_ref().unwrap();
                 child_stdin
                     .write_all(self.rootpasswd.as_bytes())
                     .expect("Failed to write root passwd to stdin.");
