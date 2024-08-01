@@ -403,7 +403,7 @@ impl Install {
                 debug_output(output);
             }
         }
-
+        // tf why isnt this working, the logs show it working but the chromebook isnt bootable unless i do it manually
         let output = Command::new("dd")
             .args([
                 "if=/dev/disk/by-partlabel/SDKernelA",
