@@ -379,41 +379,40 @@ impl Install {
                 .output()
                 .expect("Failed to run make in /CdFiles/rmtfs");
             debug_output(output);
-
-            match self.init {
-                Init::Systemd => {
-                    let output = Command::new("chroot")
-                        .args(["/mnt", "systemctl", "enable", "rmtfs"])
-                        .output()
-                        .expect("Failed to enable rmtfs service in chroot");
-                    debug_output(output);
-                }
-                Init::Openrc => {
-                    let output = Command::new("chroot")
-                        .args(["/mnt", "rc-update", "add", "rmtfs", "default"])
-                        .output()
-                        .expect("Failed to enable rmtfs service in chroot");
-                    debug_output(output);
-                }
-                Init::Runit => {
-                    let output = Command::new("chroot")
-                        .args(["/mnt", "sv", "up", "rmtfs"])
-                        .output()
-                        .expect("Failed to enable rmtfs service in chroot");
-                    debug_output(output);
-                }
-            }
-
-            let output = Command::new("dd")
-                .args([
-                    "if=/dev/disk/by-partlabel/SDKernelA",
-                    "of=/dev/disk/by-partlabel/MMCKernelA",
-                    "status=progress",
-                ])
-                .output()
-                .expect("Failed to copy Kernel to eMMC.");
-            debug_output(output);
         }
+        match self.init {
+            Init::Systemd => {
+                let output = Command::new("chroot")
+                    .args(["/mnt", "systemctl", "enable", "rmtfs"])
+                    .output()
+                    .expect("Failed to enable rmtfs service in chroot");
+                debug_output(output);
+            }
+            Init::Openrc => {
+                let output = Command::new("chroot")
+                    .args(["/mnt", "rc-update", "add", "rmtfs", "default"])
+                    .output()
+                    .expect("Failed to enable rmtfs service in chroot");
+                debug_output(output);
+            }
+            Init::Runit => {
+                let output = Command::new("chroot")
+                    .args(["/mnt", "sv", "up", "rmtfs"])
+                    .output()
+                    .expect("Failed to enable rmtfs service in chroot");
+                debug_output(output);
+            }
+        }
+
+        let output = Command::new("dd")
+            .args([
+                "if=/dev/disk/by-partlabel/SDKernelA",
+                "of=/dev/disk/by-partlabel/MMCKernelA",
+                "status=progress",
+            ])
+            .output()
+            .expect("Failed to copy Kernel to eMMC.");
+        debug_output(output);
     }
 
     fn create_users(self) {
