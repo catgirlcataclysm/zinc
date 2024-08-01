@@ -89,7 +89,7 @@ impl Install {
                 self.offset = 16384;
             }
             Baseboard::None => {
-                eprintln!("ya fucked up somehow this should be an unreachable error, ask for support on github or discord lol");
+                eprintln!("Your device has an unsupported baseboard. Considering this is booting, please reach out to me so I can look into it further.");
                 exit(1);
             }
         }

@@ -1,6 +1,7 @@
-use std::fs::{self, read_dir};
+use std::fs::{self, read_dir, OpenOptions};
 
 use crate::BOARDS;
+use std::io::Write;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Baseboard {
@@ -106,11 +107,19 @@ pub fn get_emmc() -> Option<String> {
     for path_raw in dev.flatten() {
         let path = path_raw.path();
         let path = path.to_string_lossy().trim().to_string();
+        
+        let mut logfile = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open("paths.log")
+        .expect("Failed to create/open paths.log");
+
+        writeln!(logfile, "{}", path).expect("Failed to list paths to paths.log");
+
         if path != "/dev/mmcblk0" || path != "/dev/mmcblk1" {
             continue;
         }
         return Some(path.to_string());
     }
-    // for testing, normally this is "None"
-    Some("/dev/mmcblk0".to_string())
+    None
 }
