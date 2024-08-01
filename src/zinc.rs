@@ -127,7 +127,6 @@ fn finish(z: &mut Cursive) {
     let board = Board::get();
     let emmc = hardware::get_emmc().expect("Where the fork is your eMMC?");
 
-    // TODO: handle user not inputting username and password
     let distro = *RadioGroup::<Distro>::with_global("distro", |distro| distro.selection().clone());
     let fs = *RadioGroup::<Filesystem>::with_global("fs", |fs| fs.selection().clone());
     let desktop = *RadioGroup::<Desktop>::with_global("desktop", |de| de.selection().clone());
@@ -159,9 +158,5 @@ fn finish(z: &mut Cursive) {
     };
 
     z.pop_layer();
-    // this doesnt work how it should - expected behavior: resetting terminal to normal state to show log output
-    z.quit();
-    Command::new("clear").output().expect("g");
-
     install.start();
 }

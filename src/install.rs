@@ -115,9 +115,6 @@ impl Install {
             .expect("Failed to create GPT partition table.");
         debug_output(output);
 
-        // fails and idk why
-        // Should not fail anymore, needs testing - Radical
-        // havent experienced a fail, lets see if it comes back - k
         let output = Command::new("cgpt")
             .args(["create", self.emmc.as_str()])
             .output()

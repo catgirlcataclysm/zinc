@@ -1,7 +1,7 @@
-use std::fs::{self, read_dir, OpenOptions};
+use std::fs::{self, read_dir};
 
 use crate::BOARDS;
-use std::io::Write;
+
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Baseboard {
@@ -101,8 +101,7 @@ impl From<&&str> for Board {
         }
     }
 }
-//this whole function is broken
-// maybe no longer?
+
 pub fn get_emmc() -> Option<String> {
     let dev = read_dir("/dev").expect("Failed to list /dev.");
     let path = dev.into_iter().find_map(|p| {
@@ -114,15 +113,4 @@ pub fn get_emmc() -> Option<String> {
         }
     });
     path
-    //for path_raw in dev.flatten() {
-    //    let path = path_raw.path();
-    //    let path = path.to_string_lossy().trim().to_string();
-    //    
-    //    if path != "/dev/mmcblk0".to_string() || path != "/dev/mmcblk1".to_string() {
-    //        continue;
-    //    } else {
-    //        return Some(path)
-    //    }
-    //}
-    //path
 }
