@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-crossterm = "0.28.0"
 cursive = { version = "0.20.0", features = ["crossterm-backend"], default-features = false}
 cursive-tabs = "0.7.0"
 dircpy = "0.3.18"
