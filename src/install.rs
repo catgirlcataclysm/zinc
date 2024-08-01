@@ -45,9 +45,7 @@ impl Install {
         //    .expect("Failed to install necessary installation dependencies.");
         //debug_output(output);
 
-        error!("Setting offset");
         self.set_offset();
-        error!("Setting up partitions with cgpt");
         self.cgpt_tomfoolery();
         self.fs.mkfs();
 
@@ -185,9 +183,7 @@ impl Install {
         let stdout = String::from_utf8(output.stdout).expect("Output has non UTF-8 characters!");
 
         let mut stdout_split = stdout.split_terminator('\n');
-        error!("split: {:#?}", stdout_split);
 
-        // subtract overflow error need to fix
         let remaining_size: usize = stdout_split
             .find(|o| o.contains("Sec GPT table"))
             .expect("can't find 'Sec GPT table' in cgpt output")
