@@ -426,7 +426,9 @@ impl Install {
                     .spawn()
                     .expect("Failed to set user password.");
                 let child_stdin = child.stdin.as_mut().unwrap();
-                child_stdin.write_all(self.passwd.as_bytes()).expect("Failed to write passwd to stdin.");
+                child_stdin
+                    .write_all(self.passwd.as_bytes())
+                    .expect("Failed to write passwd to stdin.");
                 child_stdin.flush().expect("Failed to flush stdin.");
                 child.wait().expect("Failed to set user password.");
                 // need to input root password
@@ -435,7 +437,9 @@ impl Install {
                     .spawn()
                     .expect("Failed to set root password.");
                 let child_stdin = child.stdin.as_mut().unwrap();
-                child_stdin.write_all(self.rootpasswd.as_bytes()).expect("Failed to write root passwd to stdin.");
+                child_stdin
+                    .write_all(self.rootpasswd.as_bytes())
+                    .expect("Failed to write root passwd to stdin.");
                 child_stdin.flush().expect("Failed to flush stdin.");
                 child.wait().expect("Failed to set root password.");
             }
