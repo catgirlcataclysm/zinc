@@ -420,18 +420,24 @@ impl Install {
                     .output()
                     .expect("Failed to create user in chroot.");
                 debug_output(output);
-                //// need to input password
-                //let output = Command::new("chroot")
-                //    .args(["/mnt", "passwd", self.username.trim()])
-                //    .output()
-                //    .expect("Failed to set user password");
-                //debug_output(output);
-                //// need to input root password
-                //let output = Command::new("chroot")
-                //    .args(["/mnt", "passwd"])
-                //    .output()
-                //    .expect("Failed to set root password.");
-                //debug_output(output);
+                // need to input password
+                let mut child = Command::new("chroot")
+                    .args(["/mnt", "passwd", self.username.trim()])
+                    .spawn()
+                    .expect("Failed to set user password.");
+                let child_stdin = child.stdin.as_mut().unwrap();
+                child_stdin.write_all(self.passwd.as_bytes()).expect("Failed to write passwd to stdin.");
+                child_stdin.flush().expect("Failed to flush stdin.");
+                child.wait().expect("Failed to set user password.");
+                // need to input root password
+                let mut child = Command::new("chroot")
+                    .args(["/mnt", "passwd"])
+                    .spawn()
+                    .expect("Failed to set root password.");
+                let child_stdin = child.stdin.as_mut().unwrap();
+                child_stdin.write_all(self.rootpasswd.as_bytes()).expect("Failed to write root passwd to stdin.");
+                child_stdin.flush().expect("Failed to flush stdin.");
+                child.wait().expect("Failed to set root password.");
             }
             Distro::Void => todo!(),
             Distro::VoidMusl => todo!(),

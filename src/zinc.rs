@@ -1,5 +1,3 @@
-use std::process::Command;
-
 use crate::{
     hardware::{self, Board},
     install::{Desktop, Distro, Filesystem, Install},
