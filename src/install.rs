@@ -422,7 +422,7 @@ impl Install {
                 debug_output(output);
                 // need to input password
                 let mut child = Command::new("chroot")
-                    .args(["/mnt", "passwd", self.username.trim()])
+                    .args(["/mnt", "passwd", "--stdin", self.username.trim()])
                     .spawn()
                     .expect("Failed to set user password.");
                 let mut child_stdin = child.stdin.as_ref().unwrap();
@@ -433,7 +433,7 @@ impl Install {
                 child.wait().expect("Failed to set user password.");
                 // need to input root password
                 let mut child = Command::new("chroot")
-                    .args(["/mnt", "passwd"])
+                    .args(["/mnt", "passwd", "--stdin"])
                     .spawn()
                     .expect("Failed to set root password.");
                 let mut child_stdin = child.stdin.as_ref().unwrap();
