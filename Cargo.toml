@@ -8,4 +8,6 @@ cursive = { version = "0.20.0", features = ["crossterm-backend"], default-featur
 cursive-tabs = "0.7.0"
 dircpy = "0.3.18"
 log = "0.4.22"
+reqwest = { version = "0.12.5", features = ["blocking"] }
 simplelog = "0.12.2"
+tempfile = "3.10.1"

@@ -1,8 +1,9 @@
 use dircpy::copy_dir;
 use log::{debug, error};
 use std::{
-    fs::{self, create_dir_all},
-    io::Write,
+    env::args,
+    fs::{self, create_dir_all, File, OpenOptions},
+    io::{self, copy, Write},
     process::{exit, Command, Output, Stdio},
 };
 
@@ -212,7 +213,70 @@ impl Install {
         debug_output(output);
     }
 
-    fn setup_archlinux(&self) {}
+    fn setup_archlinux(&self) {
+        tempfile::Builder::new()
+            .prefix("tmp")
+            .tempdir()
+            .expect("Failed to create temporary directory");
+        #[cfg(target_pointer_width = "64")]
+        let rootfs_tar = "http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz";
+        #[cfg(target_pointer_width = "32")]
+        let rootfs_tar = "http://os.archlinuxarm.org/os/ArchLinuxARM-armv7-latest.tar.gz";
+
+        let response =
+            reqwest::blocking::get(rootfs_tar).expect("Failed to download rootfs tarball.");
+        let data = response.text().expect("Failed to download rootfs tarball.");
+        let mut file = File::create("tmp/arch.tar.gz").expect("Failed to create tarball tempfile.");
+        io::copy(&mut data.as_bytes(), &mut file)
+            .expect("Failed to copy tarball data to tempfile.");
+
+        let output = Command::new("tar")
+            .args(["xfp", "tmp/arch.tar.gz", "-C", "/mnt"])
+            .output()
+            .expect("Failed to extract rootfs tarball into /mnt");
+        debug_output(output);
+
+        let output = Command::new("arch-chroot")
+            .args(["/mnt", "/usr/bin/pacman-key", "--init"])
+            .output()
+            .expect("Failed to run pacman-key --init.");
+        debug_output(output);
+
+        let output = Command::new("arch-chroot")
+            .args(["/mnt", "/usr/bin/pacman-key", "--populate", "archlinuxarm"])
+            .output()
+            .expect("Failed to populate archlinuxarm keyring");
+        debug_output(output);
+        let mut resolv_in = OpenOptions::new()
+            .read(true)
+            .write(false)
+            .open("/etc/resolv.conf")
+            .expect("Failed to access /etc/resolv.conf");
+        let mut resolv_out = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open("/mnt/etc/resolv.conf")
+            .expect("Failed to access/create /mnt/etc/resolv.conf");
+        copy(&mut resolv_in, &mut resolv_out)
+            .expect("Failed to copy /etc/resolv.conf to /mnt/etc/resolv.conf");
+
+        let output = Command::new("arch-chroot").args(["/mnt", "/usr/bin/pacman", "-Syu", "--noconfirm", "networkmanager"]).output().expect("Failed to install networkmanager to /mnt");
+        debug_output(output);
+
+        let output = Command::new("chroot").args(["/mnt", "systemctl", "enable", "--now", "NetworkManager.service"]).output().expect("Failed to start and enable NetworkManager.service on /mnt");
+        debug_output(output);
+
+        let output = Command::new("sed").args(["-i", r"'s/\#en_US.UTF-8/en_US.UTF-8/'", "/mnt/etc/locale.gen"]).output().expect("Failed to edit /mnt/etc/locale.gen");
+        debug_output(output);
+
+        let mut localeconf = OpenOptions::new().write(true).create(true).open("/mnt/etc/locale.conf").expect("Failed to access/create /mnt/etc/locale.conf");
+        writeln!(&mut localeconf, "LANG=en_US.UTF-8").expect("Failed to write into /mnt/etc/locale.conf");
+
+        let output = Command::new("chroot").args(["/mnt", "locale-gen"]).output().expect("Failed to generate locales on /mnt");
+        debug_output(output);
+
+    }
 
     fn setup_debian(&self) {
         #[cfg(target_pointer_width = "64")]
@@ -428,7 +492,9 @@ impl Install {
                     .expect("Failed to set user password.");
                 let mut stdin = child.stdin.take().expect("Failed to open stdin");
                 std::thread::spawn(move || {
-                    stdin.write_all(self.passwd.as_bytes()).expect("Failed to write passwd to stdin");
+                    stdin
+                        .write_all(self.passwd.as_bytes())
+                        .expect("Failed to write passwd to stdin");
                 });
                 // need to input root password
                 let mut child = Command::new("chroot")
@@ -438,7 +504,9 @@ impl Install {
                     .expect("Failed to set root password.");
                 let mut stdin = child.stdin.take().expect("Failed to open stdin");
                 std::thread::spawn(move || {
-                    stdin.write_all(self.rootpasswd.as_bytes()).expect("Failed to write rootpasswd to stdin");
+                    stdin
+                        .write_all(self.rootpasswd.as_bytes())
+                        .expect("Failed to write rootpasswd to stdin");
                 });
             }
             Distro::Void => todo!(),
