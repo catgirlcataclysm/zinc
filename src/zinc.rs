@@ -51,7 +51,7 @@ pub fn run() {
 }
 
 fn config(z: &mut Cursive) {
-    let tabs = TabPanel::new()
+    let mut tabs = TabPanel::new()
         .with_tab(NamedView::new(
             "Distro",
             PaddedView::lrtb(
@@ -116,6 +116,7 @@ fn config(z: &mut Cursive) {
                     .child(PaddedView::lrtb(10, 0, 0, 0, Button::new("Finish", finish))),
             ),
         ));
+    tabs.set_active_tab("Distro").expect("Failed to set active tab.");
 
     z.pop_layer();
     z.add_layer(tabs);
