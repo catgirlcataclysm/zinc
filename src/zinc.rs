@@ -137,12 +137,12 @@ fn finish(z: &mut Cursive) {
         .call_on_name("passwd", |view: &mut EditView| view.get_content())
         .unwrap()
         .to_string();
-    let passwd = format!("{}\n{}\n", passwd_raw, passwd_raw);
+    let passwd = format!("{}\n{}\n", passwd_raw.trim(), passwd_raw.trim());
     let rootpasswd_raw = z
         .call_on_name("rootpasswd", |view: &mut EditView| view.get_content())
         .unwrap()
         .to_string();
-    let rootpasswd = format!("{}\n{}\n", rootpasswd_raw, rootpasswd_raw);
+    let rootpasswd = format!("{}\n{}\n", rootpasswd_raw.trim(), rootpasswd_raw.trim());
 
     let install = Install {
         baseboard: board.into(),
