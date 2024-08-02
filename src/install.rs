@@ -235,7 +235,12 @@ impl Install {
             .expect("Failed to copy tarball data to tempfile.");
 
         let output = Command::new("tar")
-            .args(["xfp", "tmp/arch.tar.gz", "-C", "/mnt"])
+            .args([
+                "xfp",
+                format!("{}/arch.tar.gz", tmp_dir.path().to_string_lossy()).as_str(),
+                "-C",
+                "/mnt",
+            ])
             .output()
             .expect("Failed to extract rootfs tarball into /mnt");
         debug_output(output);
