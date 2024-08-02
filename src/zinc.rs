@@ -113,7 +113,7 @@ fn config(z: &mut Cursive) {
                     .child(EditView::new().with_name("username").fixed_height(1))
                     .child(TextView::new("Enter your Password:"))
                     .child(EditView::new().with_name("passwd").fixed_height(1))
-                    .child(PaddedView::lrtb(10, 0, 0, 0, Button::new("Finish", finish))),
+                    .child(PaddedView::lrtb(20, 0, 1, 0, Button::new("Finish", finish))),
             ),
         ));
     tabs.set_active_tab("Distro").expect("Failed to set active tab.");
