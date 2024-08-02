@@ -1,7 +1,7 @@
 use dircpy::copy_dir;
 use log::{debug, error};
 use std::{
-    fs::{self, create_dir_all, File, OpenOptions},
+    fs::{self, create_dir_all, OpenOptions},
     io::{self, copy, Write},
     process::{exit, Command, Output, Stdio},
 };
