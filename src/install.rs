@@ -213,7 +213,7 @@ impl Install {
     }
 
     fn setup_archlinux(&self) {
-        tempfile::Builder::new()
+        let tmp_dir = tempfile::Builder::new()
             .prefix("tmp")
             .tempdir()
             .expect("Failed to create temporary directory");
@@ -229,7 +229,7 @@ impl Install {
             .write(true)
             .create(true)
             .truncate(true)
-            .open("tmp/arch.tar.gz")
+            .open(format!("{}/arch.tar.gz", tmp_dir.path().to_string_lossy()))
             .expect("Failed to create tarball tempfile.");
         io::copy(&mut data.as_bytes(), &mut file)
             .expect("Failed to copy tarball data to tempfile.");
