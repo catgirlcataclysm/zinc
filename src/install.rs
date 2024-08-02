@@ -261,21 +261,53 @@ impl Install {
         copy(&mut resolv_in, &mut resolv_out)
             .expect("Failed to copy /etc/resolv.conf to /mnt/etc/resolv.conf");
 
-        let output = Command::new("arch-chroot").args(["/mnt", "/usr/bin/pacman", "-Syu", "--noconfirm", "networkmanager"]).output().expect("Failed to install networkmanager to /mnt");
+        let output = Command::new("arch-chroot")
+            .args([
+                "/mnt",
+                "/usr/bin/pacman",
+                "-Syu",
+                "--noconfirm",
+                "networkmanager",
+            ])
+            .output()
+            .expect("Failed to install networkmanager to /mnt");
         debug_output(output);
 
-        let output = Command::new("chroot").args(["/mnt", "systemctl", "enable", "--now", "NetworkManager.service"]).output().expect("Failed to start and enable NetworkManager.service on /mnt");
+        let output = Command::new("chroot")
+            .args([
+                "/mnt",
+                "systemctl",
+                "enable",
+                "--now",
+                "NetworkManager.service",
+            ])
+            .output()
+            .expect("Failed to start and enable NetworkManager.service on /mnt");
         debug_output(output);
 
-        let output = Command::new("sed").args(["-i", r"'s/\#en_US.UTF-8/en_US.UTF-8/'", "/mnt/etc/locale.gen"]).output().expect("Failed to edit /mnt/etc/locale.gen");
+        let output = Command::new("sed")
+            .args([
+                "-i",
+                r"'s/\#en_US.UTF-8/en_US.UTF-8/'",
+                "/mnt/etc/locale.gen",
+            ])
+            .output()
+            .expect("Failed to edit /mnt/etc/locale.gen");
         debug_output(output);
 
-        let mut localeconf = OpenOptions::new().write(true).create(true).open("/mnt/etc/locale.conf").expect("Failed to access/create /mnt/etc/locale.conf");
-        writeln!(&mut localeconf, "LANG=en_US.UTF-8").expect("Failed to write into /mnt/etc/locale.conf");
+        let mut localeconf = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open("/mnt/etc/locale.conf")
+            .expect("Failed to access/create /mnt/etc/locale.conf");
+        writeln!(&mut localeconf, "LANG=en_US.UTF-8")
+            .expect("Failed to write into /mnt/etc/locale.conf");
 
-        let output = Command::new("chroot").args(["/mnt", "locale-gen"]).output().expect("Failed to generate locales on /mnt");
+        let output = Command::new("chroot")
+            .args(["/mnt", "locale-gen"])
+            .output()
+            .expect("Failed to generate locales on /mnt");
         debug_output(output);
-
     }
 
     fn setup_debian(&self) {
