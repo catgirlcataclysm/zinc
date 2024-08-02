@@ -1,7 +1,6 @@
 use dircpy::copy_dir;
 use log::{debug, error};
 use std::{
-    env::args,
     fs::{self, create_dir_all, File, OpenOptions},
     io::{self, copy, Write},
     process::{exit, Command, Output, Stdio},
@@ -256,6 +255,7 @@ impl Install {
             .read(true)
             .write(true)
             .create(true)
+            .truncate(true)
             .open("/mnt/etc/resolv.conf")
             .expect("Failed to access/create /mnt/etc/resolv.conf");
         copy(&mut resolv_in, &mut resolv_out)
@@ -298,6 +298,7 @@ impl Install {
         let mut localeconf = OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(true)
             .open("/mnt/etc/locale.conf")
             .expect("Failed to access/create /mnt/etc/locale.conf");
         writeln!(&mut localeconf, "LANG=en_US.UTF-8")
