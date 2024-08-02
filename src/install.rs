@@ -225,7 +225,12 @@ impl Install {
         let response =
             reqwest::blocking::get(rootfs_tar).expect("Failed to download rootfs tarball.");
         let data = response.text().expect("Failed to download rootfs tarball.");
-        let mut file = File::create("tmp/arch.tar.gz").expect("Failed to create tarball tempfile.");
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open("tmp/arch.tar.gz")
+            .expect("Failed to create tarball tempfile.");
         io::copy(&mut data.as_bytes(), &mut file)
             .expect("Failed to copy tarball data to tempfile.");
 
