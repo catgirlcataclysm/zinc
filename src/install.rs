@@ -520,7 +520,37 @@ impl Install {
 
     fn create_users(self) {
         match self.distro {
-            Distro::ArchLinux => todo!(),
+            Distro::ArchLinux => {
+                let output = Command::new("chroot")
+                .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
+                .output()
+                .expect("Failed to create user in chroot.");
+            debug_output(output);
+            // need to input password
+            let mut child = Command::new("chroot")
+                .args(["/mnt", "passwd", self.username.trim()])
+                .stdin(Stdio::piped())
+                .spawn()
+                .expect("Failed to set user password.");
+            let mut stdin = child.stdin.take().expect("Failed to open stdin");
+            std::thread::spawn(move || {
+                stdin
+                    .write_all(self.passwd.as_bytes())
+                    .expect("Failed to write passwd to stdin");
+            });
+            // need to input root password
+            let mut child = Command::new("chroot")
+                .args(["/mnt", "passwd"])
+                .stdin(Stdio::piped())
+                .spawn()
+                .expect("Failed to set root password.");
+            let mut stdin = child.stdin.take().expect("Failed to open stdin");
+            std::thread::spawn(move || {
+                stdin
+                    .write_all(self.rootpasswd.as_bytes())
+                    .expect("Failed to write rootpasswd to stdin");
+            });
+            },
             Distro::Debian => {
                 let output = Command::new("chroot")
                     .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
