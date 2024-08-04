@@ -190,6 +190,11 @@ impl Install {
             .output()
             .expect("Failed to add final partition to eMMC.");
         debug_output(output);
+
+        let output = Command::new("partprobe")
+            .output()
+            .expect("Failed to run partprobe");
+        debug_output(output);
     }
 
     fn setup_archlinux(&self) {
@@ -223,7 +228,14 @@ impl Install {
             .output()
             .expect("Failed to extract rootfs tarball into /mnt");
         debug_output(output);
+
+        let output = Command::new("umount")
+            .arg("tmp")
+            .output()
+            .expect("Failed to unmount temporary directory");
+        debug_output(output);
         remove_dir_all("tmp").expect("Failed to remove temporary directory.");
+
         let output = Command::new("arch-chroot")
             .args(["/mnt", "/usr/bin/pacman-key", "--init"])
             .output()
