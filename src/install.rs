@@ -1,7 +1,7 @@
 use dircpy::copy_dir;
 use log::{debug, error};
 use std::{
-    fs::{self, create_dir_all, OpenOptions},
+    fs::{self, create_dir_all, remove_dir_all, OpenOptions},
     io::{self, copy, Write},
     process::{exit, Command, Output, Stdio},
 };
@@ -213,10 +213,8 @@ impl Install {
     }
 
     fn setup_archlinux(&self) {
-        let tmp_dir = tempfile::Builder::new()
-            .prefix("tmp")
-            .tempdir()
-            .expect("Failed to create temporary directory");
+        // idk why this isnt being made, ig i can switch to create_dir and rmdir
+        create_dir_all("tmp").expect("Failed to create temporary directory.");
         #[cfg(target_pointer_width = "64")]
         let rootfs_tar = "http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz";
         #[cfg(target_pointer_width = "32")]
@@ -229,7 +227,7 @@ impl Install {
             .write(true)
             .create(true)
             .truncate(true)
-            .open(format!("{}/arch.tar.gz", tmp_dir.path().to_string_lossy()))
+            .open("tmp/arch.tar.gz")
             .expect("Failed to create tarball tempfile.");
         io::copy(&mut data.as_bytes(), &mut file)
             .expect("Failed to copy tarball data to tempfile.");
@@ -237,14 +235,14 @@ impl Install {
         let output = Command::new("tar")
             .args([
                 "xfp",
-                format!("{}/arch.tar.gz", tmp_dir.path().to_string_lossy()).as_str(),
+                "tmp/arch.tar.gz",
                 "-C",
                 "/mnt",
             ])
             .output()
             .expect("Failed to extract rootfs tarball into /mnt");
         debug_output(output);
-
+        remove_dir_all("tmp").expect("Failed to remove temporary directory.");
         let output = Command::new("arch-chroot")
             .args(["/mnt", "/usr/bin/pacman-key", "--init"])
             .output()
