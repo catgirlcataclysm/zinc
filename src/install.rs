@@ -195,6 +195,12 @@ impl Install {
     fn setup_archlinux(&self) {
         // idk why this isnt being made, ig i can switch to create_dir and rmdir
         create_dir_all("tmp").expect("Failed to create temporary directory.");
+        let output = Command::new("mount")
+            .args(["-t", "tmpfs", "zinc_tmp", "tmp"])
+            .output()
+            .expect("Failed to mount temporary folder to RAM.");
+        debug_output(output);
+
         #[cfg(target_pointer_width = "64")]
         let rootfs_tar = "http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz";
         #[cfg(target_pointer_width = "32")]
@@ -213,12 +219,7 @@ impl Install {
             .expect("Failed to copy tarball data to tempfile.");
 
         let output = Command::new("tar")
-            .args([
-                "xfp",
-                "tmp/arch.tar.gz",
-                "-C",
-                "/mnt",
-            ])
+            .args(["xfp", "tmp/arch.tar.gz", "-C", "/mnt"])
             .output()
             .expect("Failed to extract rootfs tarball into /mnt");
         debug_output(output);
@@ -500,35 +501,35 @@ impl Install {
         match self.distro {
             Distro::ArchLinux => {
                 let output = Command::new("chroot")
-                .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
-                .output()
-                .expect("Failed to create user in chroot.");
-            debug_output(output);
-            // need to input password
-            let mut child = Command::new("chroot")
-                .args(["/mnt", "passwd", self.username.trim()])
-                .stdin(Stdio::piped())
-                .spawn()
-                .expect("Failed to set user password.");
-            let mut stdin = child.stdin.take().expect("Failed to open stdin");
-            std::thread::spawn(move || {
-                stdin
-                    .write_all(self.passwd.as_bytes())
-                    .expect("Failed to write passwd to stdin");
-            });
-            // need to input root password
-            let mut child = Command::new("chroot")
-                .args(["/mnt", "passwd"])
-                .stdin(Stdio::piped())
-                .spawn()
-                .expect("Failed to set root password.");
-            let mut stdin = child.stdin.take().expect("Failed to open stdin");
-            std::thread::spawn(move || {
-                stdin
-                    .write_all(self.rootpasswd.as_bytes())
-                    .expect("Failed to write rootpasswd to stdin");
-            });
-            },
+                    .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
+                    .output()
+                    .expect("Failed to create user in chroot.");
+                debug_output(output);
+                // need to input password
+                let mut child = Command::new("chroot")
+                    .args(["/mnt", "passwd", self.username.trim()])
+                    .stdin(Stdio::piped())
+                    .spawn()
+                    .expect("Failed to set user password.");
+                let mut stdin = child.stdin.take().expect("Failed to open stdin");
+                std::thread::spawn(move || {
+                    stdin
+                        .write_all(self.passwd.as_bytes())
+                        .expect("Failed to write passwd to stdin");
+                });
+                // need to input root password
+                let mut child = Command::new("chroot")
+                    .args(["/mnt", "passwd"])
+                    .stdin(Stdio::piped())
+                    .spawn()
+                    .expect("Failed to set root password.");
+                let mut stdin = child.stdin.take().expect("Failed to open stdin");
+                std::thread::spawn(move || {
+                    stdin
+                        .write_all(self.rootpasswd.as_bytes())
+                        .expect("Failed to write rootpasswd to stdin");
+                });
+            }
             Distro::Debian => {
                 let output = Command::new("chroot")
                     .args(["/mnt", "/sbin/useradd", "-m", self.username.trim()])
