@@ -474,28 +474,28 @@ impl Install {
                 .output()
                 .expect("Failed to run make in /CdFiles/rmtfs");
             debug_output(output);
-        }
-        match self.init {
-            Init::Systemd => {
-                let output = Command::new("chroot")
-                    .args(["/mnt", "systemctl", "enable", "rmtfs"])
-                    .output()
-                    .expect("Failed to enable rmtfs service in chroot");
-                debug_output(output);
-            }
-            Init::Openrc => {
-                let output = Command::new("chroot")
-                    .args(["/mnt", "rc-update", "add", "rmtfs", "default"])
-                    .output()
-                    .expect("Failed to enable rmtfs service in chroot");
-                debug_output(output);
-            }
-            Init::Runit => {
-                let output = Command::new("chroot")
-                    .args(["/mnt", "sv", "up", "rmtfs"])
-                    .output()
-                    .expect("Failed to enable rmtfs service in chroot");
-                debug_output(output);
+            match self.init {
+                Init::Systemd => {
+                    let output = Command::new("chroot")
+                        .args(["/mnt", "systemctl", "enable", "rmtfs"])
+                        .output()
+                        .expect("Failed to enable rmtfs service in chroot");
+                    debug_output(output);
+                }
+                Init::Openrc => {
+                    let output = Command::new("chroot")
+                        .args(["/mnt", "rc-update", "add", "rmtfs", "default"])
+                        .output()
+                        .expect("Failed to enable rmtfs service in chroot");
+                    debug_output(output);
+                }
+                Init::Runit => {
+                    let output = Command::new("chroot")
+                        .args(["/mnt", "sv", "up", "rmtfs"])
+                        .output()
+                        .expect("Failed to enable rmtfs service in chroot");
+                    debug_output(output);
+                }
             }
         }
         // tf why isnt this working, the logs show it working but the chromebook isnt bootable unless i do it manually
