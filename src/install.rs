@@ -1,9 +1,11 @@
+use core::time::Duration;
 use dircpy::copy_dir;
 use log::{debug, error};
 use std::{
     fs::{self, create_dir_all, remove_dir_all, OpenOptions},
     io::{self, copy, Write},
     process::{exit, Command, Output, Stdio},
+    thread::sleep,
 };
 
 use crate::hardware::{Baseboard, Board};
@@ -27,6 +29,7 @@ impl Install {
     pub fn start(mut self) {
         self.set_offset();
         self.cgpt_tomfoolery();
+        sleep(Duration::from_secs(5));
         self.fs.mkfs();
 
         match self.distro {
@@ -611,13 +614,6 @@ impl Default for Filesystem {
 impl Filesystem {
     fn mkfs(&self) {
         let rootpart = "/dev/disk/by-partlabel/Root";
-
-        let output = Command::new("bash")
-            .args(["-c", "lsof | { head -1 ; grep mmcblk ; }"])
-            .output()
-            .expect("yeag");
-        debug_output(output);
-
         match self {
             Self::F2FS => {
                 let output = Command::new("mkfs.f2fs")
