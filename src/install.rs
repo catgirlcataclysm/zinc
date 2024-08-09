@@ -27,6 +27,7 @@ pub struct Install {
 
 impl Install {
     pub fn start(mut self) {
+        self.prepare_emmc();
         self.set_offset();
         self.cgpt_tomfoolery();
         sleep(Duration::from_secs(5));
@@ -78,7 +79,13 @@ impl Install {
         }
         error!("Offset is {}", self.offset);
     }
-
+    fn prepare_emmc(&self) {
+        let output = Command::new("wipefs")
+            .args(["-a", self.emmc.as_str()])
+            .output()
+            .expect("Failed to wipe eMMC.");
+        debug_output(output);
+    }
     fn cgpt_tomfoolery(&self) {
         let output = Command::new("dd")
             .args([
@@ -201,7 +208,6 @@ impl Install {
     }
 
     fn setup_archlinux(&self) {
-        // idk why this isnt being made, ig i can switch to create_dir and rmdir
         create_dir_all("tmp").expect("Failed to create temporary directory.");
         let output = Command::new("mount")
             .args(["-t", "tmpfs", "zinc_tmp", "tmp"])
