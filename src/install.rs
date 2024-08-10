@@ -223,9 +223,11 @@ impl Install {
 
         let client = Client::new();
 
-        let mut response: reqwest::blocking::Response =
-            client.get(rootfs_tar).send().expect("Failed to query archlinuxarm.org");
-        
+        let mut response: reqwest::blocking::Response = client
+            .get(rootfs_tar)
+            .send()
+            .expect("Failed to query archlinuxarm.org");
+
         if response.status().is_success() {
             let mut file = OpenOptions::new()
                 .write(true)
@@ -233,7 +235,9 @@ impl Install {
                 .truncate(true)
                 .open("tmp/arch.tar.gz")
                 .expect("Failed to create tarball tempfile.");
-            response.copy_to(&mut file).expect("Failed to download archlinuxarm tarball.");
+            response
+                .copy_to(&mut file)
+                .expect("Failed to download archlinuxarm tarball.");
         }
 
         let output = Command::new("tar")
