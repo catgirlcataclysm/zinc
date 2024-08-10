@@ -1,9 +1,10 @@
 use core::time::Duration;
 use dircpy::copy_dir;
 use log::{debug, error};
+use reqwest::blocking::Client;
 use std::{
     fs::{self, create_dir_all, remove_dir_all, OpenOptions},
-    io::{self, copy, Write},
+    io::{self, copy, Read, Write},
     process::{exit, Command, Output, Stdio},
     thread::sleep,
 };
@@ -220,17 +221,20 @@ impl Install {
         #[cfg(target_pointer_width = "32")]
         let rootfs_tar = "http://os.archlinuxarm.org/os/ArchLinuxARM-armv7-latest.tar.gz";
 
-        let response =
-            reqwest::blocking::get(rootfs_tar).expect("Failed to download rootfs tarball.");
-        let data = response.text().expect("Failed to download rootfs tarball.");
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open("tmp/arch.tar.gz")
-            .expect("Failed to create tarball tempfile.");
-        io::copy(&mut data.as_bytes(), &mut file)
-            .expect("Failed to copy tarball data to tempfile.");
+        let client = Client::new();
+
+        let mut response: reqwest::blocking::Response =
+            client.get(rootfs_tar).send().expect("Failed to query archlinuxarm.org");
+        
+        if response.status().is_success() {
+            let mut file = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .truncate(true)
+                .open("tmp/arch.tar.gz")
+                .expect("Failed to create tarball tempfile.");
+            response.copy_to(&mut file).expect("Failed to download archlinuxarm tarball.");
+        }
 
         let output = Command::new("tar")
             .args(["xfp", "tmp/arch.tar.gz", "-C", "/mnt"])
