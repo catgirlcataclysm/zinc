@@ -245,13 +245,14 @@ impl Install {
             .output()
             .expect("Failed to extract rootfs tarball into /mnt");
         debug_output(output);
+        
+        sleep(Duration::from_secs(5));
 
         let output = Command::new("umount")
             .arg("tmp")
             .output()
             .expect("Failed to unmount temporary directory");
         debug_output(output);
-        sleep(Duration::from_secs(5));
         remove_dir_all("tmp").expect("Failed to remove temporary directory.");
 
         let output = Command::new("arch-chroot")
