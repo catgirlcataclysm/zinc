@@ -245,7 +245,7 @@ impl Install {
             .output()
             .expect("Failed to extract rootfs tarball into /mnt");
         debug_output(output);
-        
+
         sleep(Duration::from_secs(5));
 
         let output = Command::new("umount")
@@ -476,7 +476,7 @@ impl Install {
             Board::Speedy => {}
             Board::None => {}
         }
-
+        //TODO: clone these repos only if needed.
         if self.baseboard == Baseboard::Trogdor {
             let output = Command::new("make")
                 .args(["-C", "/CdFiles/qmic", "prefix=/mnt/usr", "install"])
@@ -517,7 +517,7 @@ impl Install {
                 }
             }
         }
-        // tf why isnt this working, the logs show it working but the chromebook isnt bootable unless i do it manually
+
         let output = Command::new("dd")
             .args([
                 "if=/dev/disk/by-partlabel/SDKernelA",
@@ -537,29 +537,35 @@ impl Install {
                     .expect("Failed to create user in chroot.");
                 debug_output(output);
                 // need to input password
-                let mut child = Command::new("chroot")
-                    .args(["/mnt", "passwd", self.username.trim()])
-                    .stdin(Stdio::piped())
-                    .spawn()
-                    .expect("Failed to set user password.");
-                let mut stdin = child.stdin.take().expect("Failed to open stdin");
-                std::thread::spawn(move || {
-                    stdin
-                        .write_all(self.passwd.as_bytes())
-                        .expect("Failed to write passwd to stdin");
-                });
-                // need to input root password
-                let mut child = Command::new("chroot")
-                    .args(["/mnt", "passwd"])
-                    .stdin(Stdio::piped())
-                    .spawn()
-                    .expect("Failed to set root password.");
-                let mut stdin = child.stdin.take().expect("Failed to open stdin");
-                std::thread::spawn(move || {
-                    stdin
-                        .write_all(self.rootpasswd.as_bytes())
-                        .expect("Failed to write rootpasswd to stdin");
-                });
+                //let mut child = Command::new("chroot")
+                //    .args(["/mnt", "passwd", self.username.trim()])
+                //    .stdin(Stdio::piped())
+                //    .spawn()
+                //    .expect("Failed to set user password.");
+                //let mut stdin = child.stdin.take().expect("Failed to open stdin");
+                //std::thread::spawn(move || {
+                //    stdin
+                //        .write_all(self.passwd.as_bytes())
+                //        .expect("Failed to write passwd to stdin");
+                //});
+                //// need to input root password
+                //let mut child = Command::new("chroot")
+                //    .args(["/mnt", "passwd"])
+                //    .stdin(Stdio::piped())
+                //    .spawn()
+                //    .expect("Failed to set root password.");
+                //let mut stdin = child.stdin.take().expect("Failed to open stdin");
+                //std::thread::spawn(move || {
+                //    stdin
+                //        .write_all(self.rootpasswd.as_bytes())
+                //        .expect("Failed to write rootpasswd to stdin");
+                //});
+
+                let output = Command::new("bash").args(["-c", format!("'echo -e {}\n{} | passwd {}'", self.passwd, self.passwd, self.username).as_str()]).output().expect("Failed to set user password.");
+                debug_output(output);
+
+                let output = Command::new("bash").args(["-c", format!("'echo -e {}\n{} | passwd'", self.rootpasswd, self.rootpasswd).as_str()]).output().expect("Failed to set root password.");
+                debug_output(output);
             }
             Distro::Debian => {
                 let output = Command::new("chroot")
