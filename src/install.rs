@@ -4,7 +4,7 @@ use log::{debug, error};
 use reqwest::blocking::Client;
 use std::{
     fs::{self, create_dir_all, remove_dir_all, OpenOptions},
-    io::{self, copy, Read, Write},
+    io::{copy, Read, Write},
     process::{exit, Command, Output, Stdio},
     thread::sleep,
 };
