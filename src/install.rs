@@ -561,10 +561,10 @@ impl Install {
                 //        .expect("Failed to write rootpasswd to stdin");
                 //});
 
-                let output = Command::new("bash").args(["-c", format!("echo -e {} | passwd {}", self.passwd, self.username).as_str()]).output().expect("Failed to set user password.");
+                let output = Command::new("bash").args(["-c", format!(r#"echo -e "{}" | passwd {}"#, self.passwd, self.username).as_str()]).output().expect("Failed to set user password.");
                 debug_output(output);
 
-                let output = Command::new("bash").args(["-c", format!("echo -e {} | passwd", self.rootpasswd).as_str()]).output().expect("Failed to set root password.");
+                let output = Command::new("bash").args(["-c", format!(r#"echo -e "{}" | passwd"#, self.rootpasswd).as_str()]).output().expect("Failed to set root password.");
                 debug_output(output);
             }
             Distro::Debian => {
