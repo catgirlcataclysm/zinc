@@ -124,6 +124,10 @@ fn config(z: &mut Cursive) {
 }
 
 fn finish(z: &mut Cursive) {
+    //TODO: ADD MENU THAT SHOWS USERS WHAT THEY SELECTED AND LAST MINUTE CHANGES
+
+
+    //TODO: WARN ABOUT DRIVE ERASURE
     let board = Board::get();
     let emmc = hardware::get_emmc().expect("Where the fork is your eMMC?");
 
