@@ -4,7 +4,7 @@ use log::{debug, error};
 use reqwest::blocking::Client;
 use std::{
     fs::{self, create_dir_all, remove_dir_all, OpenOptions},
-    io::{copy, Read, Write},
+    io::{copy, Write},
     process::{exit, Command, Output, Stdio},
     thread::sleep,
 };
@@ -536,35 +536,23 @@ impl Install {
                     .output()
                     .expect("Failed to create user in chroot.");
                 debug_output(output);
-                // need to input password
-                //let mut child = Command::new("chroot")
-                //    .args(["/mnt", "passwd", self.username.trim()])
-                //    .stdin(Stdio::piped())
-                //    .spawn()
-                //    .expect("Failed to set user password.");
-                //let mut stdin = child.stdin.take().expect("Failed to open stdin");
-                //std::thread::spawn(move || {
-                //    stdin
-                //        .write_all(self.passwd.as_bytes())
-                //        .expect("Failed to write passwd to stdin");
-                //});
-                //// need to input root password
-                //let mut child = Command::new("chroot")
-                //    .args(["/mnt", "passwd"])
-                //    .stdin(Stdio::piped())
-                //    .spawn()
-                //    .expect("Failed to set root password.");
-                //let mut stdin = child.stdin.take().expect("Failed to open stdin");
-                //std::thread::spawn(move || {
-                //    stdin
-                //        .write_all(self.rootpasswd.as_bytes())
-                //        .expect("Failed to write rootpasswd to stdin");
-                //});
 
-                let output = Command::new("bash").args(["-c", format!(r#"echo -e "{}" | passwd {}"#, self.passwd, self.username).as_str()]).output().expect("Failed to set user password.");
+                let output = Command::new("bash")
+                    .args([
+                        "-c",
+                        format!(r#"echo -e "{}" | passwd {}"#, self.passwd, self.username).as_str(),
+                    ])
+                    .output()
+                    .expect("Failed to set user password.");
                 debug_output(output);
 
-                let output = Command::new("bash").args(["-c", format!(r#"echo -e "{}" | passwd"#, self.rootpasswd).as_str()]).output().expect("Failed to set root password.");
+                let output = Command::new("bash")
+                    .args([
+                        "-c",
+                        format!(r#"echo -e "{}" | passwd"#, self.rootpasswd).as_str(),
+                    ])
+                    .output()
+                    .expect("Failed to set root password.");
                 debug_output(output);
             }
             Distro::Debian => {
