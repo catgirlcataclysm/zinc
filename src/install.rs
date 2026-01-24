@@ -375,11 +375,16 @@ impl Install {
         debug_output(output);
     }
 
-    fn setup_void(&self) {}
+    fn setup_void(&self) {
+    }
 
-    fn setup_voidmusl(&self) {}
+    fn setup_voidmusl(&self) {
 
-    fn setup_gentoo(&self) {}
+    }
+
+    fn setup_gentoo(&self) {
+
+    }
 
     fn finalize_install(&self) {
         let kver_raw = String::from_utf8(
@@ -415,6 +420,8 @@ impl Install {
                     .output()
                     .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
                 debug_output(output);
+
+                //TODO: turn all of this into a function/macro and substitute the board name with a variable
             }
             Board::Coachz => {}
             Board::Hana => {

@@ -1,3 +1,6 @@
+[build.release]
+target = "aarch64-unknown-linux-musl"
+
 [target.aarch64-unknown-linux-musl]
 linker = "clang"
 rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold"]
