@@ -2,4 +2,5 @@
 Installer ISO for Cadmium Linux
 
 
-# on hiatus for now, as i just moved to university and am dealing with life stuff (also im kinda burned out for this specific project for a bit)
+This project is unfinished and fully unmaintained, as the chromebook that I used for testing has been nothing but unreliable for months now.
+I may pick this back up, but it's highly unlikely, as cadmium linux still works well enough without it.
