@@ -9,12 +9,8 @@ use std::{
     thread::sleep,
 };
 
-use crate::hardware::{Baseboard, Board};
-
 #[derive(Default)]
 pub struct Install {
-    pub baseboard: Baseboard,
-    pub board: Board,
     pub emmc: String,
     pub distro: Distro,
     pub fs: Filesystem,
@@ -22,14 +18,11 @@ pub struct Install {
     pub rootpasswd: String,
     pub username: String,
     pub passwd: String,
-    pub offset: usize,
-    pub init: Init,
 }
 
 impl Install {
-    pub fn start(mut self) {
+    pub fn start(self) {
         self.prepare_emmc();
-        self.set_offset();
         self.cgpt_tomfoolery();
         sleep(Duration::from_secs(5));
         self.fs.mkfs();
@@ -56,30 +49,6 @@ impl Install {
         self.create_users();
     }
 
-    pub fn set_offset(&mut self) {
-        match self.baseboard {
-            Baseboard::Gru => {
-                self.offset = 0;
-            }
-            Baseboard::Kukui => {
-                self.offset = 0;
-            }
-            Baseboard::Oak => {
-                self.offset = 0;
-            }
-            Baseboard::Trogdor => {
-                self.offset = 0;
-            }
-            Baseboard::Veyron => {
-                self.offset = 16384;
-            }
-            Baseboard::None => {
-                eprintln!("Your device has an unsupported baseboard. Considering this is booting, please reach out to me so I can look into it further.");
-                exit(1);
-            }
-        }
-        error!("Offset is {}", self.offset);
-    }
     fn prepare_emmc(&self) {
         let output = Command::new("wipefs")
             .args(["-a", self.emmc.as_str()])
@@ -94,7 +63,6 @@ impl Install {
                 format!("of={}", self.emmc).as_str(),
                 "bs=512k",
                 "count=128",
-                format!("seek={}", self.offset).as_str(),
             ])
             .output()
             .expect("Failed to zero beginning of the drive.");
@@ -119,8 +87,6 @@ impl Install {
                 "1",
                 "-t",
                 "kernel",
-                "-b",
-                (8192 + self.offset).to_string().as_str(),
                 "-s",
                 "65536",
                 "-l",
@@ -134,32 +100,7 @@ impl Install {
                 self.emmc.as_str(),
             ])
             .output()
-            .expect("Failed to add first partition to eMMC.");
-        debug_output(output);
-
-        let output = Command::new("cgpt")
-            .args([
-                "add",
-                "-i",
-                "2",
-                "-t",
-                "kernel",
-                "-b",
-                (73728 + self.offset).to_string().as_str(),
-                "-s",
-                "65536",
-                "-l",
-                "MMCKernelB",
-                "-S",
-                "0",
-                "-T",
-                "2",
-                "-P",
-                "5",
-                self.emmc.as_str(),
-            ])
-            .output()
-            .expect("Failed to add second partition to eMMC.");
+            .expect("Failed to add kernel partition to eMMC.");
         debug_output(output);
 
         let output = Command::new("cgpt")
@@ -199,7 +140,7 @@ impl Install {
                 self.emmc.as_str(),
             ])
             .output()
-            .expect("Failed to add final partition to eMMC.");
+            .expect("Failed to add root partition to eMMC.");
         debug_output(output);
 
         let output = Command::new("partprobe")
@@ -218,8 +159,6 @@ impl Install {
 
         #[cfg(target_pointer_width = "64")]
         let rootfs_tar = "http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz";
-        #[cfg(target_pointer_width = "32")]
-        let rootfs_tar = "http://os.archlinuxarm.org/os/ArchLinuxARM-armv7-latest.tar.gz";
 
         let client = Client::new();
 
@@ -332,7 +271,6 @@ impl Install {
     }
 
     fn setup_debian(&self) {
-        #[cfg(target_pointer_width = "64")]
         let output = Command::new("debootstrap")
             .args([
                 "--arch=arm64",
@@ -342,17 +280,6 @@ impl Install {
             ])
             .output()
             .expect("Failed to run debootstrap.");
-        #[cfg(target_pointer_width = "32")]
-        let output = Command::new("debootstrap")
-            .args([
-                "--arch=armhf",
-                "bookworm",
-                "/mnt",
-                "https://deb.debian.org/debian/",
-            ])
-            .output()
-            .expect("Failed to run debootstrap.");
-        debug_output(output);
 
         let output = Command::new("chroot")
             .args(["/mnt", "apt", "update"])
@@ -375,16 +302,11 @@ impl Install {
         debug_output(output);
     }
 
-    fn setup_void(&self) {
-    }
+    fn setup_void(&self) {}
 
-    fn setup_voidmusl(&self) {
+    fn setup_voidmusl(&self) {}
 
-    }
-
-    fn setup_gentoo(&self) {
-
-    }
+    fn setup_gentoo(&self) {}
 
     fn finalize_install(&self) {
         let kver_raw = String::from_utf8(
@@ -409,121 +331,6 @@ impl Install {
             format!("/mnt/lib/modules/{}", kver),
         )
         .expect("Failed to recursively copy kernel modules to /mnt/lib/modules");
-
-        match self.board {
-            Board::Bob => {
-                create_dir_all("/mnt/etc/udev/hwdb.d")
-                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
-                fs::copy("/CdFiles/board/bob/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot")
-                    .args(["/mnt", "udevadm", "hwdb", "-u"])
-                    .output()
-                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
-                debug_output(output);
-
-                //TODO: turn all of this into a function/macro and substitute the board name with a variable
-            }
-            Board::Coachz => {}
-            Board::Hana => {
-                create_dir_all("/mnt/etc/udev/hwdb.d")
-                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
-                fs::copy("/CdFiles/board/hana/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot")
-                    .args(["/mnt", "udevadm", "hwdb", "-u"])
-                    .output()
-                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
-                debug_output(output);
-            }
-            Board::Homestar => {}
-            Board::Kevin => {
-                create_dir_all("/mnt/etc/udev/hwdb.d")
-                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
-                fs::copy("/CdFiles/board/kevin/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot")
-                    .args(["/mnt", "udevadm", "hwdb", "-u"])
-                    .output()
-                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
-                debug_output(output);
-            }
-            Board::Kodama => {
-                create_dir_all("/mnt/etc/libinput").expect("Failed to create /mnt/etc/libinput");
-                fs::copy("/CdFiles/board/kodama/local-overrides.quirks", "/mnt/etc/libinput/local-overrides.quirks").expect("Failed to copy local-overrides.quirks from cadmium board folder to /etc/libinput.");
-                create_dir_all("/mnt/etc/udev/hwdb.d")
-                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
-                fs::copy("/CdFiles/board/kodama/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot")
-                    .args(["/mnt", "udevadm", "hwdb", "-u"])
-                    .output()
-                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
-                debug_output(output);
-            }
-            Board::Krane => {
-                create_dir_all("/mnt/etc/libinput").expect("Failed to create /mnt/etc/libinput");
-                fs::copy("/CdFiles/board/krane/local-overrides.quirks", "/mnt/etc/libinput/local-overrides.quirks").expect("Failed to copy local-overrides.quirks from cadmium board folder to /etc/libinput.");
-                create_dir_all("/mnt/etc/udev/hwdb.d")
-                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
-                fs::copy("/CdFiles/board/krane/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot")
-                    .args(["/mnt", "udevadm", "hwdb", "-u"])
-                    .output()
-                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
-                debug_output(output);
-            }
-            Board::Lazor => {}
-            Board::Minnie => {
-                create_dir_all("/mnt/etc/udev/hwdb.d")
-                    .expect("Failed to create /mnt/etc/udev/hwdb.d");
-                fs::copy("/CdFiles/board/minnie/accel-matrix.hwdb", "/mnt/etc/udev/hwdb.d/accel-matrix.hwdb").expect("Failed to copy accel-matrix.hwdb from cadmium board folder to /etc/udev/hwdb.d.");
-                let output = Command::new("chroot")
-                    .args(["/mnt", "udevadm", "hwdb", "-u"])
-                    .output()
-                    .expect("Failed to run 'udevadm hwdb -u' inside chroot.");
-                debug_output(output);
-            }
-            Board::Speedy => {}
-            Board::None => {}
-        }
-        //TODO: clone these repos only if needed.
-        if self.baseboard == Baseboard::Trogdor {
-            let output = Command::new("make")
-                .args(["-C", "/CdFiles/qmic", "prefix=/mnt/usr", "install"])
-                .output()
-                .expect("Failed to run make in /CdFiles/qmic.");
-            debug_output(output);
-            let output = Command::new("make")
-                .args(["-C", "/CdFiles/qrtr", "prefix=/mnt/usr", "install"])
-                .output()
-                .expect("Failed to run make in /CdFiles/qrtr");
-            debug_output(output);
-            let output = Command::new("make")
-                .args(["-C", "/CdFiles/rmtfs", "prefix=/mnt/usr", "install"])
-                .output()
-                .expect("Failed to run make in /CdFiles/rmtfs");
-            debug_output(output);
-            match self.init {
-                Init::Systemd => {
-                    let output = Command::new("chroot")
-                        .args(["/mnt", "systemctl", "enable", "rmtfs"])
-                        .output()
-                        .expect("Failed to enable rmtfs service in chroot");
-                    debug_output(output);
-                }
-                Init::Openrc => {
-                    let output = Command::new("chroot")
-                        .args(["/mnt", "rc-update", "add", "rmtfs", "default"])
-                        .output()
-                        .expect("Failed to enable rmtfs service in chroot");
-                    debug_output(output);
-                }
-                Init::Runit => {
-                    let output = Command::new("chroot")
-                        .args(["/mnt", "sv", "up", "rmtfs"])
-                        .output()
-                        .expect("Failed to enable rmtfs service in chroot");
-                    debug_output(output);
-                }
-            }
-        }
 
         let output = Command::new("dd")
             .args([
@@ -689,11 +496,6 @@ impl Filesystem {
                     .output()
                     .expect("Failed to create home subvolume.");
 
-                Command::new("btrfs")
-                    .args(["subvolume", "create", "/mnt/.snapshots"])
-                    .output()
-                    .expect("Failed to create snapshots subvolume.");
-
                 Command::new("umount")
                     .arg("/mnt")
                     .output()
@@ -719,17 +521,6 @@ impl Filesystem {
                     ])
                     .output()
                     .expect("Failed to mount home subvolume to /mnt/home");
-
-                Command::new("mount")
-                    .args([
-                        "--mkdir",
-                        "-o",
-                        "compress=zstd:6,subvol=.snapshots",
-                        rootpart,
-                        "/mnt/.snapshots",
-                    ])
-                    .output()
-                    .expect("Failed to mount snapshots subvolume to /mnt/.snapshots");
             }
         }
     }
@@ -747,31 +538,6 @@ pub enum Distro {
 impl Default for Distro {
     fn default() -> Self {
         Self::ArchLinux
-    }
-}
-
-#[derive(PartialEq)]
-pub enum Init {
-    Systemd,
-    Openrc,
-    Runit,
-}
-
-impl From<Distro> for Init {
-    fn from(value: Distro) -> Self {
-        match value {
-            Distro::ArchLinux => Init::Systemd,
-            Distro::Debian => Init::Systemd,
-            Distro::Void => Init::Runit,
-            Distro::VoidMusl => Init::Runit,
-            Distro::Gentoo => Init::Openrc,
-        }
-    }
-}
-
-impl Default for Init {
-    fn default() -> Self {
-        Self::Systemd
     }
 }
 
