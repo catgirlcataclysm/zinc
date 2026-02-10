@@ -1,5 +1,5 @@
 use crate::{
-    hardware::{self, Board},
+    hardware::{self},
     install::{Desktop, Distro, Filesystem, Install},
 };
 use cursive::{
@@ -123,7 +123,6 @@ fn finish(z: &mut Cursive) {
     //TODO: ADD MENU THAT SHOWS USERS WHAT THEY SELECTED AND LAST MINUTE CHANGES
 
     //TODO: WARN ABOUT DRIVE ERASURE
-    let board = Board::get();
     let emmc = hardware::get_emmc().expect("Where the fork is your eMMC?");
 
     let distro = *RadioGroup::<Distro>::with_global("distro", |distro| distro.selection().clone());
@@ -145,8 +144,6 @@ fn finish(z: &mut Cursive) {
     let rootpasswd = format!("{}\n{}\n", rootpasswd_raw.trim(), rootpasswd_raw.trim());
 
     let install = Install {
-        baseboard: board.into(),
-        board,
         emmc,
         distro,
         fs,
@@ -154,7 +151,6 @@ fn finish(z: &mut Cursive) {
         rootpasswd,
         username,
         passwd,
-        init: distro.into(),
         ..Default::default()
     };
 

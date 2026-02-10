@@ -3,7 +3,7 @@ use dircpy::copy_dir;
 use log::{debug, error};
 use reqwest::blocking::Client;
 use std::{
-    fs::{self, create_dir_all, remove_dir_all, OpenOptions},
+    fs::{create_dir_all, remove_dir_all, OpenOptions},
     io::{copy, Write},
     process::{exit, Command, Output, Stdio},
     thread::sleep,
@@ -129,10 +129,8 @@ impl Install {
                 "3",
                 "-t",
                 "data",
-                "-b",
-                (139264 + self.offset).to_string().as_str(),
                 "-s",
-                (remaining_size - (139264 + self.offset))
+                remaining_size
                     .to_string()
                     .as_str(),
                 "-l",
@@ -157,7 +155,6 @@ impl Install {
             .expect("Failed to mount temporary folder to RAM.");
         debug_output(output);
 
-        #[cfg(target_pointer_width = "64")]
         let rootfs_tar = "http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz";
 
         let client = Client::new();
