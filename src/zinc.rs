@@ -60,7 +60,11 @@ fn config(z: &mut Cursive) {
                 2,
                 2,
                 LinearLayout::vertical()
-                    .child(RadioButton::global("distro", Distro::ArchLinux, "Arch Linux"))
+                    .child(RadioButton::global(
+                        "distro",
+                        Distro::ArchLinux,
+                        "Arch Linux",
+                    ))
                     .child(RadioButton::global("distro", Distro::Debian, "Debian"))
                     .child(RadioButton::global("distro", Distro::Void, "Void Linux"))
                     .child(RadioButton::global("distro", Distro::VoidMusl, "Void Musl"))
@@ -147,7 +151,7 @@ fn finish(z: &mut Cursive) {
         emmc,
         distro,
         fs,
-        desktop,
+        // desktop,
         rootpasswd,
         username,
         passwd,

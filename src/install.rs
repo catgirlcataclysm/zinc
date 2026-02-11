@@ -1,11 +1,11 @@
 use core::time::Duration;
 use dircpy::copy_dir;
-use log::{debug, error};
+use log::debug;
 use reqwest::blocking::Client;
 use std::{
     fs::{create_dir_all, remove_dir_all, OpenOptions},
     io::{copy, Write},
-    process::{exit, Command, Output, Stdio},
+    process::{Command, Output, Stdio},
     thread::sleep,
 };
 
@@ -14,7 +14,7 @@ pub struct Install {
     pub emmc: String,
     pub distro: Distro,
     pub fs: Filesystem,
-    pub desktop: Desktop,
+    // pub desktop: Desktop,
     pub rootpasswd: String,
     pub username: String,
     pub passwd: String,
@@ -22,7 +22,6 @@ pub struct Install {
 
 impl Install {
     pub fn start(self) {
-        self.prepare_emmc();
         self.cgpt_tomfoolery();
         sleep(Duration::from_secs(5));
         self.fs.mkfs();
@@ -49,37 +48,15 @@ impl Install {
         self.create_users();
     }
 
-    fn prepare_emmc(&self) {
-        let output = Command::new("wipefs")
-            .args(["-a", self.emmc.as_str()])
-            .output()
-            .expect("Failed to wipe eMMC.");
-        debug_output(output);
-    }
     fn cgpt_tomfoolery(&self) {
-        let output = Command::new("dd")
-            .args([
-                "if=/dev/zero",
-                format!("of={}", self.emmc).as_str(),
-                "bs=512k",
-                "count=128",
-            ])
-            .output()
-            .expect("Failed to zero beginning of the drive.");
-        debug_output(output);
-
-        let output = Command::new("parted")
-            .args(["--script", self.emmc.as_str(), "mklabel", "gpt"])
-            .output()
-            .expect("Failed to create GPT partition table.");
-        debug_output(output);
-
         let output = Command::new("cgpt")
             .args(["create", self.emmc.as_str()])
             .output()
             .expect("Failed to create partition table on drive.");
         debug_output(output);
+        
 
+        // TODO: learn more about cgpt and clean this up.
         let output = Command::new("cgpt")
             .args([
                 "add",
@@ -90,7 +67,7 @@ impl Install {
                 "-s",
                 "65536",
                 "-l",
-                "MMCKernelA",
+                "boot",
                 "-S",
                 "1",
                 "-T",
@@ -130,11 +107,9 @@ impl Install {
                 "-t",
                 "data",
                 "-s",
-                remaining_size
-                    .to_string()
-                    .as_str(),
+                remaining_size.to_string().as_str(),
                 "-l",
-                "Root",
+                "root",
                 self.emmc.as_str(),
             ])
             .output()
