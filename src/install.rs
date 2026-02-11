@@ -55,7 +55,6 @@ impl Install {
             .expect("Failed to create partition table on drive.");
         debug_output(output);
         
-
         // TODO: learn more about cgpt and clean this up.
         let output = Command::new("cgpt")
             .args([
@@ -216,6 +215,7 @@ impl Install {
             .expect("Failed to start and enable NetworkManager.service on /mnt");
         debug_output(output);
 
+        // TODO: Allow user to choose locale
         let output = Command::new("sed")
             .args([
                 "-i",
@@ -242,37 +242,37 @@ impl Install {
         debug_output(output);
     }
 
-    fn setup_debian(&self) {
-        let output = Command::new("debootstrap")
-            .args([
-                "--arch=arm64",
-                "bookworm",
-                "/mnt",
-                "https://deb.debian.org/debian/",
-            ])
-            .output()
-            .expect("Failed to run debootstrap.");
+    // fn setup_debian(&self) {
+    //     let output = Command::new("debootstrap")
+    //         .args([
+    //             "--arch=arm64",
+    //             "bookworm",
+    //             "/mnt",
+    //             "https://deb.debian.org/debian/",
+    //         ])
+    //         .output()
+    //         .expect("Failed to run debootstrap.");
 
-        let output = Command::new("chroot")
-            .args(["/mnt", "apt", "update"])
-            .output()
-            .expect("Failed to run apt update inside chroot.");
-        debug_output(output);
+    //     let output = Command::new("chroot")
+    //         .args(["/mnt", "apt", "update"])
+    //         .output()
+    //         .expect("Failed to run apt update inside chroot.");
+    //     debug_output(output);
 
-        let output = Command::new("chroot")
-            .args([
-                "/mnt",
-                "apt",
-                "install",
-                "-y",
-                "u-boot-tools",
-                "vboot-utils",
-                "cgpt",
-            ])
-            .output()
-            .expect("Failed to install necessary bootloader packages.");
-        debug_output(output);
-    }
+    //     let output = Command::new("chroot")
+    //         .args([
+    //             "/mnt",
+    //             "apt",
+    //             "install",
+    //             "-y",
+    //             "u-boot-tools",
+    //             "vboot-utils",
+    //             "cgpt",
+    //         ])
+    //         .output()
+    //         .expect("Failed to install necessary bootloader packages.");
+    //     debug_output(output);
+    // }
 
     fn setup_void(&self) {}
 
@@ -280,39 +280,39 @@ impl Install {
 
     fn setup_gentoo(&self) {}
 
-    fn finalize_install(&self) {
-        let kver_raw = String::from_utf8(
-            Command::new("uname")
-                .arg("-r")
-                .output()
-                .expect("Failed to run 'uname -r'.")
-                .stdout,
-        )
-        .unwrap();
-        let kver = kver_raw.trim();
+    // fn finalize_install(&self) {
+    //     let kver_raw = String::from_utf8(
+    //         Command::new("uname")
+    //             .arg("-r")
+    //             .output()
+    //             .expect("Failed to run 'uname -r'.")
+    //             .stdout,
+    //     )
+    //     .unwrap();
+    //     let kver = kver_raw.trim();
 
-        create_dir_all("/mnt/CdFiles").expect("Failed to create /mnt/CdFiles.");
-        copy_dir("/CdFiles", "/mnt/CdFiles")
-            .expect("Failed to recursively copy /CdFiles to chroot.");
-        create_dir_all("/mnt/lib/firmware").expect("Failed to create /mnt/lib/firmware.");
-        copy_dir("/lib/firmware", "/mnt/lib/firmware")
-            .expect("Failed to recursively copy /lib/firmware to /mnt/lib/firmware.");
-        create_dir_all("/mnt/lib/modules").expect("Failed to create /mnt/lib/modules.");
-        copy_dir(
-            format!("/lib/modules/{}", kver),
-            format!("/mnt/lib/modules/{}", kver),
-        )
-        .expect("Failed to recursively copy kernel modules to /mnt/lib/modules");
+    //     create_dir_all("/mnt/CdFiles").expect("Failed to create /mnt/CdFiles.");
+    //     copy_dir("/CdFiles", "/mnt/CdFiles")
+    //         .expect("Failed to recursively copy /CdFiles to chroot.");
+    //     create_dir_all("/mnt/lib/firmware").expect("Failed to create /mnt/lib/firmware.");
+    //     copy_dir("/lib/firmware", "/mnt/lib/firmware")
+    //         .expect("Failed to recursively copy /lib/firmware to /mnt/lib/firmware.");
+    //     create_dir_all("/mnt/lib/modules").expect("Failed to create /mnt/lib/modules.");
+    //     copy_dir(
+    //         format!("/lib/modules/{}", kver),
+    //         format!("/mnt/lib/modules/{}", kver),
+    //     )
+    //     .expect("Failed to recursively copy kernel modules to /mnt/lib/modules");
 
-        let output = Command::new("dd")
-            .args([
-                "if=/dev/disk/by-partlabel/SDKernelA",
-                "of=/dev/disk/by-partlabel/MMCKernelA",
-            ])
-            .output()
-            .expect("Failed to copy Kernel to eMMC.");
-        debug_output(output);
-    }
+    //     let output = Command::new("dd")
+    //         .args([
+    //             "if=/dev/disk/by-partlabel/SDKernelA",
+    //             "of=/dev/disk/by-partlabel/MMCKernelA",
+    //         ])
+    //         .output()
+    //         .expect("Failed to copy Kernel to eMMC.");
+    //     debug_output(output);
+    // }
 
     fn create_users(self) {
         match self.distro {
